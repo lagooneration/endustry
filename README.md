@@ -1,36 +1,65 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Endustry Admin - Invoice & Weighing System
 
-## Getting Started
+![Endustry Admin Banner](public/banner.jpg)
 
-First, run the development server:
+## Streamlining Industrial Operations
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Endustry Admin is a comprehensive solution designed for industrial plants to efficiently manage invoices and weighing operations. Built with modern web technologies, this application provides a seamless experience for tracking truck weights, generating invoices, and managing customer data—all within an intuitive, user-friendly interface.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Powerful Features
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Invoice Management
+Transform your billing process with our robust invoice system that allows you to create, edit, and track invoices through their entire lifecycle. Generate professional PDF invoices with a single click and easily search through your records.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Weight Ticket System
+Connect directly to your weighing scales for real-time readings. Create weight tickets on the fly, associate them with invoices, and generate detailed documentation for your records and customers.
 
-## Learn More
+## Cutting-Edge Technology
 
-To learn more about Next.js, take a look at the following resources:
+Endustry Admin leverages the latest in web development:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Frontend**: Built on Next.js 14 with React 18, TypeScript, and TailwindCSS for a responsive and modern UI
+- **Backend**: Powered by Next.js API Routes, Prisma ORM, and PostgreSQL for reliable data management
+- **Real-time Updates**: Utilizing Socket.IO for instant data synchronization
+- **Hardware Integration**: Seamlessly connects with Arduino-based weighing scales via serial communication
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Quick Setup
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/lagooneration/endustry.git
+   cd endustry
+   ```
 
-## Deploy on Vercel
+2. **Install dependencies**
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+3. **Set up environment variables**
+   ```bash
+   cp .env.example .env.local
+   ```
+   Then edit `.env.local` with your database credentials and other configuration.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+4. **Set up the database**
+   ```bash
+   npx prisma migrate dev
+   ```
+
+5. **Start the development server**
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   ```
+
+6. **Access the application**
+   Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+## Hardware Setup (for weighing scale integration)
+
+1. Connect your Arduino-based weighing scale to your server via USB
+2. Ensure the correct serial port is configured in your environment variables
+3. The system will automatically detect and communicate with the connected scale
