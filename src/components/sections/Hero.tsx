@@ -22,12 +22,14 @@ const Hero = () => {
             </LinkScroll>
           </div>
 
-          <div className="absolute -top-32 left-[calc(50%-340px)] w-[1230px] pointer-events-none hero-img_res">
-            {/* <img
+          <div className="absolute -top-10 z-10 left-[calc(50%-340px)] w-[1230px] pointer-events-none hero-img_res">
+            <img
               src="/images/hero2.png"
-              className="size-1230 max-lg:h-auto"
+              className="size-1230 max-lg:h-auto mix-blend-screen opacity-30"
               alt="hero"
-            /> */}
+            />
+          </div>
+          <div className="absolute -top-48 left-[calc(50%-340px)] w-[1230px] pointer-events-none hero-img_res">
             <AniLottie />
           </div>
         </div>

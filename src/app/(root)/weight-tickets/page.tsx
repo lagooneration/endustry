@@ -7,7 +7,7 @@ import { format } from 'date-fns'
 import { getWeightTickets } from '@/lib/actions'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-
+import { WeightTicketsSkeleton } from '@/components/ui/custom/WeightTicketsSkeleton'
 // Define the WeightTicket type based on the schema and actions
 interface WeightTicket {
   id: string
@@ -59,10 +59,19 @@ export default function WeightTicketsPage() {
     loadWeightTickets()
   }, [])
 
+  if (loading) {
+    return <WeightTicketsSkeleton />
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-gray-900">Weight Tickets</h1>
+        <div>
+          <h1 className="text-2xl font-semibold text-gray-900">Weight Tickets</h1>
+          <p className="mt-1 text-sm text-gray-500">
+            Manage and track truck weight measurements
+          </p>
+        </div>
         <Link
           href="/weight-tickets/new"
           className="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
@@ -74,9 +83,7 @@ export default function WeightTicketsPage() {
       
       {/* Weight Tickets List */}
       <Card className="p-6">
-        {loading ? (
-          <p className="text-center py-4">Loading weight tickets...</p>
-        ) : error ? (
+        {error ? (
           <p className="text-center py-4 text-red-500">{error}</p>
         ) : weightTickets.length === 0 ? (
           <p className="text-center py-4">No weight tickets found. Create your first one!</p>

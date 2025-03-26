@@ -15,7 +15,7 @@ const AniLottie = () => {
   return (
     <>
       <div className="">
-        <div className="w-full h-full scale-[0.6]">{View}</div>
+        <div className="w-full h-full scale-[0.65]">{View}</div>
       </div>
     </>
   );
