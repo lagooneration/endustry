@@ -4,6 +4,7 @@ import Button from "@/components/ui/custom/button";
 import { motion } from "framer-motion";
 import Link from "next/link";
 
+
 const CallToAction = () => {
   return (
     <section className="relative pt-60 pb-40 max-lg:pt-52 max-lg:pb-36 max-md:pt-36 max-md:pb-32">
@@ -20,13 +21,13 @@ const CallToAction = () => {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 className="text-3xl font-bold text-white">Ready to Transform Your Business?</h2>
             <p className="mt-4 text-xl text-indigo-100">
-                Join thousands of manufacturing facilities using our solution
+                Get custom made manufacturing facility services and more.
             </p>
             <div className="mt-8">
                 <Link
                 href="/auth/login"
                 >
-                <Button>
+                <Button icon="/images/logos/wa.png">
                 Start Now
                 </Button>
                 </Link>

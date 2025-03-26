@@ -57,63 +57,39 @@ export const features = [
   export const faq = [
     {
       id: "0",
-      question: "How easy is it to setup Xora?",
+      question: "How easy is it to implement digital invoicing in my industrial plant?",
       answer:
-        "Absolutely! Not only you can upgrade your plan at any time but you also get a prorated discount giving you maximum value for your subscription.",
+        "Implementation is straightforward with our guided setup process. Our team helps you digitize your existing invoice templates, integrate with your accounting systems, and train your staff. Most customers are fully operational within 1-2 weeks, eliminating paper waste and reducing processing time by up to 70%.",
     },
     {
       id: "1",
-      question: "Can I integrate Xora with other platforms?",
+      question: "Can I track my production line status in real-time?",
       answer:
-        "Absolutely! Not only you can upgrade your plan at any time but you also get a prorated discount giving you maximum value for your subscription.",
+        "Yes! Our production monitoring dashboard gives you real-time visibility into every stage of your manufacturing process. You can identify bottlenecks, monitor machine performance, and receive instant alerts when production metrics fall outside acceptable parameters, all from your desktop or mobile device.",
     },
     {
       id: "2",
-      question: "How often do you add new content?",
+      question: "How does the AI surveillance calculate manpower productivity?",
       answer:
-        "Absolutely! Not only you can upgrade your plan at any time but you also get a prorated discount giving you maximum value for your subscription.",
+        "Our AI surveillance system uses computer vision to analyze worker movements, machine operation time, and production output. It identifies inefficient workflows, calculates productivity metrics per shift, and provides actionable insights to optimize labor allocation without compromising worker privacy or dignity.",
     },
     {
       id: "3",
-      question: "What your refund policy?",
+      question: "What benefits does the token generation system provide for my plant?",
       answer:
-        "Absolutely! Not only you can upgrade your plan at any time but you also get a prorated discount giving you maximum value for your subscription.",
+        "Our token generation system streamlines material handling by creating digital tokens for weighing, quality checks, and inventory movements. This eliminates paper tickets, reduces errors by 95%, prevents duplicate entries, and provides complete traceability of materials throughout your facility.",
     },
     {
       id: "4",
-      question: "Do you have corporate plans?",
+      question: "How does the inventory management system work across multiple locations?",
       answer:
-        "Absolutely! Not only you can upgrade your plan at any time but you also get a prorated discount giving you maximum value for your subscription.",
+        "Our inventory management system synchronizes data across all your facilities in real-time. You can track raw materials, work-in-progress, and finished goods with precision, set automated reorder points, and generate comprehensive inventory reports that help optimize your supply chain and reduce carrying costs.",
     },
     {
       id: "5",
-      question: "What happens when I’m out of storage?",
+      question: "What kind of ROI can I expect from implementing your digital solutions?",
       answer:
-        "Absolutely! Not only you can upgrade your plan at any time but you also get a prorated discount giving you maximum value for your subscription.",
-    },
-    {
-      id: "6",
-      question: "Can I upgrade my plan?",
-      answer:
-        "Absolutely! Not only you can upgrade your plan at any time but you also get a prorated discount giving you maximum value for your subscription.",
-    },
-    {
-      id: "7",
-      question: "How do I invite my team?",
-      answer:
-        "Absolutely! Not only you can upgrade your plan at any time but you also get a prorated discount giving you maximum value for your subscription.",
-    },
-    {
-      id: "8",
-      question: "Do you offer training for individuals and teams?",
-      answer:
-        "Absolutely! Not only you can upgrade your plan at any time but you also get a prorated discount giving you maximum value for your subscription.",
-    },
-    {
-      id: "9",
-      question: "I’m locked out of my account what do I do?",
-      answer:
-        "Absolutely! Not only you can upgrade your plan at any time but you also get a prorated discount giving you maximum value for your subscription.",
+        "Most of our industrial customers see ROI within 3-6 months. Typical results include 30% reduction in administrative costs, 25% improvement in production efficiency, 15% decrease in inventory holding costs, and significant reductions in material waste and quality issues through better tracking and accountability.",
     },
   ];
   

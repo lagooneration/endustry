@@ -2,7 +2,9 @@
 import { Link as LinkScroll } from "react-scroll";
 import { useEffect, useState } from "react";
 import clsx from "clsx";
-
+import Link from "next/link";
+import { Button } from "@/components/ui/custom/button";
+import { LoginButton } from "@/components/auth/login-button";
 interface NavLinkProps {
     title: string;
   }
@@ -76,7 +78,7 @@ const Header = () => {
                   >
                     <img
                       src="/anti-logo.svg"
-                      width={85}
+                      width={55}
                       height={55}
                       alt="logo"
                     />
@@ -86,7 +88,11 @@ const Header = () => {
                 <li className="nav-li">
                   <NavLink title="faq" />
                   <div className="dot" />
-                  <NavLink title="download" />
+                  <LoginButton mode="modal">
+                    <Button>
+                        LOGIN
+                    </Button>
+                </LoginButton>
                 </li>
               </ul>
             </nav>
