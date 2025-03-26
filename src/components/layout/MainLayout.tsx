@@ -14,6 +14,10 @@ import { usePathname } from 'next/navigation'
 import { PrismaClient } from '@prisma/client'
 import { LogoutButton } from '../auth/logout-buton'
 import { ExitIcon } from '@radix-ui/react-icons'
+import { useCurrentUser } from "@/hooks/use-current-user";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { User } from 'lucide-react'
+
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
@@ -29,6 +33,7 @@ function classNames(...classes: string[]) {
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const pathname = usePathname()
+  const user = useCurrentUser();
 
   return (
     <>
@@ -65,7 +70,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
                         src="/logo-png.png"
                         alt="Your Company"
                       />
-                      <span className="ml-2 text-xl font-semibold">Industry Admin</span>
+                      <span className="ml-2 text-xl font-semibold">Endustry</span>
                     </div>
                     <nav className="flex flex-1 flex-col">
                       <ul role="list" className="flex flex-1 flex-col gap-y-7">
@@ -165,11 +170,12 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
                 <Menu as="div" className="relative">
                   <Menu.Button className="-m-1.5 flex items-center p-1.5">
                     <span className="sr-only">Open user menu</span>
-                    <img
-                      className="h-8 w-8 rounded-full bg-gray-50"
-                      src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                      alt=""
-                    />
+                    <Avatar>
+                      <AvatarImage src={user?.image || ""} />
+                      <AvatarFallback className="bg-sky-500">
+                        {user?.name ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2) : <User className="text-white" />}
+                      </AvatarFallback>
+                    </Avatar>
                   </Menu.Button>
 
                   <Transition

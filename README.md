@@ -23,6 +23,15 @@ Endustry Admin leverages the latest in web development:
 - **Real-time Updates**: Utilizing Socket.IO for instant data synchronization
 - **Hardware Integration**: Seamlessly connects with Arduino-based weighing scales via serial communication
 
+## Media Credits
+
+- Landing page images: Photo by Monstera Production: https://www.pexels.com/photo/cutout-paper-of-man-examining-bills-through-magnifying-glass-5849566/
+- Weighing load Photo by Tima Miroshnichenko: https://www.pexels.com/photo/a-man-and-a-woman-working-for-a-delivery-company-6169668/
+- Customer Management Photo by Monstera Production: https://www.pexels.com/photo/person-with-bills-for-goods-or-services-5849565/
+- Cashier Photo by: Kaboompics.com: https://www.pexels.com/photo/push-cart-and-a-white-paperbag-5632402/
+- Hero Image by freepik: https://www.freepik.com/free-ai-image/person-using-ar-technology-their-daily-occupation_137499766.htm#fromView=search&page=1&position=41&uuid=467fb966-867b-4777-8f9f-e7b070385518&query=3d+image+industry+
+
+
 ## Quick Setup
 1. **Clone the repository**
    ```bash
