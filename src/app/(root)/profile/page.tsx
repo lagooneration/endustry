@@ -110,15 +110,29 @@ export default async function ProfilePage() {
             <div>
               <h4 className="text-sm font-medium text-gray-900 dark:text-white">Password</h4>
               <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Update your password to keep your account secure.
+                Update your password.
               </p>
             </div>
-            <Link href="/profile/change-password">
+            
+            <Link href="/auth/new-password">
               <Button>
               Change password
               </Button>
             </Link>
           </div>
+          <div className="flex justify-between items-center mt-4">
+          <div>
+              <h4 className="text-sm font-medium text-gray-900 dark:text-white">2F Token</h4>
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                Add two factor authentication.
+              </p>
+            </div>
+            <Link href="#">
+              <Button className="w-40" variant="outline">
+              Coming Soon!
+              </Button>
+            </Link>
+            </div>
         </div>
       </div>
     </div>

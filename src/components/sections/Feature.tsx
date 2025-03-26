@@ -17,7 +17,7 @@ const Feature = () => {
               >
                 <div className="w-full flex justify-start items-start">
                   
-                  <div className="-ml-3 mb-12 flex items-center justify-center flex-col">
+                  <div className="-ml-1 mb-12 flex items-center justify-center flex-col">
                     <div className="w-0.5 h-16 bg-s3" />
 
                     <img

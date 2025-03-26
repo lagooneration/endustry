@@ -23,6 +23,19 @@ Endustry Admin leverages the latest in web development:
 - **Real-time Updates**: Utilizing Socket.IO for instant data synchronization
 - **Hardware Integration**: Seamlessly connects with Arduino-based weighing scales via serial communication
 
+## Design Inspiration
+
+The frontend design of Endustry Admin draws inspiration from the [Xora project](https://github.com/adrianhajdin/xora/tree/main), incorporating sleek UI elements and responsive design principles to create an intuitive industrial management interface. We've adapted these design patterns to specifically address the needs of manufacturing facilities and industrial plants.
+
+## Key Benefits
+
+- **Increased Efficiency**: Reduce manual paperwork by up to 80%
+- **Error Reduction**: Minimize human error in weighing and invoicing processes
+- **Real-time Insights**: Access critical business data instantly through comprehensive dashboards
+- **Cost Savings**: Lower operational costs through streamlined processes and reduced waste
+- **Enhanced Customer Experience**: Provide faster service and more accurate documentation
+
+
 ## Media Credits
 
 - Landing page images: Photo by Monstera Production: https://www.pexels.com/photo/cutout-paper-of-man-examining-bills-through-magnifying-glass-5849566/
@@ -30,6 +43,7 @@ Endustry Admin leverages the latest in web development:
 - Customer Management Photo by Monstera Production: https://www.pexels.com/photo/person-with-bills-for-goods-or-services-5849565/
 - Cashier Photo by: Kaboompics.com: https://www.pexels.com/photo/push-cart-and-a-white-paperbag-5632402/
 - Hero Image by freepik: https://www.freepik.com/free-ai-image/person-using-ar-technology-their-daily-occupation_137499766.htm#fromView=search&page=1&position=41&uuid=467fb966-867b-4777-8f9f-e7b070385518&query=3d+image+industry+
+- Icon Image by studiogstock on Freepik: https://www.freepik.com/free-vector/bundle-engineering-set-icons_5984949.htm#from_element=detail_alsolike
 
 
 ## Quick Setup

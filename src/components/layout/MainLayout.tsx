@@ -37,7 +37,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <>
-      <div>
+      <div className='bg-zinc-200'>
         <Transition.Root show={sidebarOpen} as={Fragment}>
           <Dialog as="div" className="relative z-50 lg:hidden" onClose={setSidebarOpen}>
             <Transition.Child
@@ -171,9 +171,9 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
                   <Menu.Button className="-m-1.5 flex items-center p-1.5">
                     <span className="sr-only">Open user menu</span>
                     <Avatar>
-                      <AvatarImage src={user?.image || ""} />
+                      {/* <AvatarImage src={user?.image || ""} /> */}
                       <AvatarFallback className="bg-sky-500">
-                        {user?.name ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2) : <User className="text-white" />}
+                        {user?.name ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2) : <span className="text-white">EA</span>}
                       </AvatarFallback>
                     </Avatar>
                   </Menu.Button>

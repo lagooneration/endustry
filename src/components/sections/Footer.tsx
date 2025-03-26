@@ -9,13 +9,19 @@ const Footer = () => {
       whileInView={{ opacity: 1 }}
       viewport={{ once: true }}
       transition={{ duration: 0.5 }}
-      className="bg-gray-900 py-12"
+      className="bg-gray-900/40 py-12"
     >
+    <div className="container py-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           <div>
-            <h3 className="text-white text-lg font-semibold mb-4">Endustry</h3>
-            <p className="text-gray-400">
+            <div className="flex flex-row w-fit items-center">
+            <a className="lg:hidden flex-1 cursor-pointer z-2">
+              <img src="/anti-logo.svg" width={38} height={55} alt="logo" />
+            </a>
+            <h3 className="text-white text-lg font-semibold">Endustry</h3>
+            </div>
+            <p className="text-gray-400 mt-2">
               Streamlining manufacturing operations with powerful software solutions.
             </p>
           </div>
@@ -38,6 +44,7 @@ const Footer = () => {
           <p>&copy; 2024 Endustry. All rights reserved.</p>
         </div>
       </div>
+    </div>
     </motion.footer>
   );
 };

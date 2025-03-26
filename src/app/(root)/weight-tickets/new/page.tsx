@@ -1,28 +1,75 @@
+'use client'
+
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Card } from '@/components/ui/card'
 import { ArrowLeftIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link'
 import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { createWeightTicket } from '@/lib/actions'
+import CustomerSelect from '@/components/layout/CustomerSelect'
 
 export default function NewWeightTicketPage() {
+  const router = useRouter()
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [grossWeight, setGrossWeight] = useState(0)
+  const [tareWeight, setTareWeight] = useState(0)
+
+  // Calculate net weight automatically
+  const netWeight = grossWeight - tareWeight
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    setError('')
+    setLoading(true)
+
+    const formData = new FormData(e.currentTarget)
+    const data = {
+      ticketNumber: `WT-${Date.now()}`,
+      customerId: formData.get('customerId') as string,
+      date: new Date(),
+      truckNumber: formData.get('truck-number') as string,
+      driverName: formData.get('driver-name') as string,
+      grossWeight: parseFloat(formData.get('gross-weight') as string),
+      tareWeight: parseFloat(formData.get('tare-weight') as string),
+      netWeight: parseFloat(formData.get('net-weight') as string),
+      notes: formData.get('notes') as string,
+    }
+
+    try {
+      await createWeightTicket(data)
+      router.push('/weight-tickets')
+      router.refresh()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to create weight ticket')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-x-4">
-        <Link
-          href="/weight-tickets"
-          className="text-gray-400 hover:text-gray-500"
-        >
-          <ArrowLeftIcon className="h-5 w-5" aria-hidden="true" />
-        </Link>
-        <div>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center">
+          <Link href="/weight-tickets" className="mr-4">
+            <ArrowLeftIcon className="h-5 w-5 text-gray-400" />
+          </Link>
           <h1 className="text-2xl font-semibold text-gray-900">New Weight Ticket</h1>
-          <p className="mt-1 text-sm text-gray-500">
-            Create a new weight ticket for a truck
-          </p>
         </div>
       </div>
 
       <Card className="p-6">
-        <form className="space-y-8">
+        <form onSubmit={handleSubmit} className="space-y-8">
+          {/* Customer Selection */}
+          <div>
+            <h2 className="text-base font-semibold text-gray-900">Customer Information</h2>
+            <div className="mt-4">
+              <CustomerSelect />
+            </div>
+          </div>
+
           {/* Truck Information */}
           <div>
             <h2 className="text-base font-semibold text-gray-900">Truck Information</h2>
@@ -35,7 +82,8 @@ export default function NewWeightTicketPage() {
                   type="text"
                   name="truck-number"
                   id="truck-number"
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  required
+                  className="mt-1 block w-full"
                 />
               </div>
               <div>
@@ -46,7 +94,8 @@ export default function NewWeightTicketPage() {
                   type="text"
                   name="driver-name"
                   id="driver-name"
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  required
+                  className="mt-1 block w-full"
                 />
               </div>
             </div>
@@ -58,70 +107,72 @@ export default function NewWeightTicketPage() {
             <div className="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-3">
               <div>
                 <label htmlFor="gross-weight" className="block text-sm font-medium text-gray-700">
-                  Gross Weight
+                  Gross Weight (kg)
                 </label>
-                <div className="mt-1 relative rounded-md shadow-sm">
-                  <Input
-                    type="number"
-                    name="gross-weight"
-                    id="gross-weight"
-                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                  />
-                  <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                    <span className="text-gray-500 sm:text-sm">kg</span>
-                  </div>
-                </div>
+                <Input
+                  type="number"
+                  name="gross-weight"
+                  id="gross-weight"
+                  required
+                  value={grossWeight}
+                  onChange={(e) => setGrossWeight(parseFloat(e.target.value) || 0)}
+                  className="mt-1 block w-full"
+                />
               </div>
               <div>
                 <label htmlFor="tare-weight" className="block text-sm font-medium text-gray-700">
-                  Tare Weight
+                  Tare Weight (kg)
                 </label>
-                <div className="mt-1 relative rounded-md shadow-sm">
-                  <Input
-                    type="number"
-                    name="tare-weight"
-                    id="tare-weight"
-                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                  />
-                  <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                    <span className="text-gray-500 sm:text-sm">kg</span>
-                  </div>
-                </div>
+                <Input
+                  type="number"
+                  name="tare-weight"
+                  id="tare-weight"
+                  required
+                  value={tareWeight}
+                  onChange={(e) => setTareWeight(parseFloat(e.target.value) || 0)}
+                  className="mt-1 block w-full"
+                />
               </div>
               <div>
                 <label htmlFor="net-weight" className="block text-sm font-medium text-gray-700">
-                  Net Weight
+                  Net Weight (kg)
                 </label>
-                <div className="mt-1 relative rounded-md shadow-sm">
-                  <Input
-                    type="number"
-                    name="net-weight"
-                    id="net-weight"
-                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                  />
-                  <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                    <span className="text-gray-500 sm:text-sm">kg</span>
-                  </div>
-                </div>
+                <Input
+                  type="number"
+                  name="net-weight"
+                  id="net-weight"
+                  required
+                  value={netWeight}
+                  readOnly
+                  className="mt-1 block w-full bg-gray-50"
+                />
               </div>
             </div>
           </div>
 
-          {/* Additional Information */}
+          {/* Notes */}
           <div>
             <h2 className="text-base font-semibold text-gray-900">Additional Information</h2>
             <div className="mt-4">
               <label htmlFor="notes" className="block text-sm font-medium text-gray-700">
                 Notes
               </label>
-              <textarea
+              <Textarea
                 name="notes"
                 id="notes"
                 rows={3}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                className="mt-1 block w-full"
+                placeholder="Add any additional information about this weight ticket"
               />
             </div>
           </div>
+
+          {/* Error message */}
+          {error && (
+            <div className="rounded-md bg-red-50 p-4">
+              <div className="text-sm text-red-700">{error}</div>
+            </div>
+          )}
 
           {/* Form Actions */}
           <div className="flex justify-end gap-x-4">
@@ -133,13 +184,14 @@ export default function NewWeightTicketPage() {
             </Link>
             <button
               type="submit"
-              className="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+              disabled={loading}
+              className="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-50"
             >
-              Create Weight Ticket
+              {loading ? 'Creating...' : 'Create Weight Ticket'}
             </button>
           </div>
         </form>
       </Card>
     </div>
   )
-} 
+}

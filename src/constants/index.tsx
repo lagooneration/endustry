@@ -1,7 +1,7 @@
 export const features = [
     {
       id: "0",
-      icon: "/images/feature-1.png",
+      icon: "/images/icons/f1.png",
       caption: "Work smarter",
       title: "Accounts Management",
       text: "Comprehensive accounts management services including professional invoicing, GST filing, and financial reporting solutions.",
@@ -16,7 +16,7 @@ export const features = [
     },
     {
       id: "1",
-      icon: "/images/feature-2.png",
+      icon: "/images/icons/f2.png",
       caption: "QR Automation",
       title: "Ticket/Token Generation",
       text: "Generate accurate weight tickets with real-time scale integration, and other token generations, perfect for manufacturing and logistics.",

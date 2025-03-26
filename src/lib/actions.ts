@@ -1,11 +1,17 @@
 'use server'
 
 import { PrismaClient } from '@prisma/client'
-import { getSession } from './useauth'
 import { revalidatePath } from 'next/cache'
 import { auth } from "@/lib/auth"
 
 const prisma = new PrismaClient()
+
+// Helper function to check authentication
+const checkAuth = async () => {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error('Not authenticated')
+  return session.user.id
+}
 
 export interface Customer {
   id: string
@@ -15,26 +21,33 @@ export interface Customer {
   address: string
 }
 
-export async function getCustomers(): Promise<Customer[]> {
-  try {
-    const customers = await prisma.customer.findMany({
-      orderBy: {
-        name: 'asc'
-      }
-    })
-    return customers
-  } catch (error) {
-    console.error('Error fetching customers:', error)
-    throw new Error('Failed to fetch customers')
-  }
+// Customer actions
+export async function getCustomers() {
+  const userId = await checkAuth()
+  
+  return prisma.customer.findMany({
+    where: { userId },
+    orderBy: { name: 'asc' }
+  })
 }
 
-export async function createCustomer(data: Omit<Customer, 'id'>): Promise<Customer> {
+export async function createCustomer(data: {
+  name: string
+  email: string
+  phone: string
+  address: string
+}) {
+  const userId = await checkAuth()
+
   try {
     const customer = await prisma.customer.create({
-      data
+      data: {
+        ...data,
+        userId
+      }
     })
-    revalidatePath('/customers')
+    
+    revalidatePath('/customers') // Add this line to revalidate the customers page
     return customer
   } catch (error) {
     console.error('Error creating customer:', error)
@@ -42,10 +55,15 @@ export async function createCustomer(data: Omit<Customer, 'id'>): Promise<Custom
   }
 }
 
-export async function updateCustomer(id: string, data: Partial<Omit<Customer, 'id'>>): Promise<Customer> {
+export async function updateCustomer(id: string, data: Partial<Omit<Customer, 'id'>>) {
+  const userId = await checkAuth()
+
   try {
     const customer = await prisma.customer.update({
-      where: { id },
+      where: { 
+        id,
+        userId // Ensure user can only update their own customers
+      },
       data
     })
     revalidatePath('/customers')
@@ -56,10 +74,15 @@ export async function updateCustomer(id: string, data: Partial<Omit<Customer, 'i
   }
 }
 
-export async function deleteCustomer(id: string): Promise<void> {
+export async function deleteCustomer(id: string) {
+  const userId = await checkAuth()
+
   try {
     await prisma.customer.delete({
-      where: { id }
+      where: { 
+        id,
+        userId // Ensure user can only delete their own customers
+      }
     })
     revalidatePath('/customers')
   } catch (error) {
@@ -68,29 +91,25 @@ export async function deleteCustomer(id: string): Promise<void> {
   }
 }
 
+// Invoice actions
 export async function getInvoices() {
+  const userId = await checkAuth()
+
   try {
     const invoices = await prisma.invoice.findMany({
+      where: { userId },
       include: {
         customer: true,
         items: true,
         weightTickets: true
       },
-      orderBy: {
-        date: 'desc'
-      }
+      orderBy: { date: 'desc' }
     })
     return invoices
   } catch (error) {
     console.error('Error fetching invoices:', error)
     throw new Error('Failed to fetch invoices')
   }
-}
-
-const checkAuth = async () => {
-  const session = await auth()
-  if (!session) throw new Error('Not authenticated')
-  return session
 }
 
 export async function createInvoice(data: {
@@ -105,15 +124,13 @@ export async function createInvoice(data: {
   }>
   notes?: string
 }) {
-  await checkAuth()
+  const userId = await checkAuth()
+
   try {
     const invoice = await prisma.invoice.create({
       data: {
-        number: data.number,
-        customerId: data.customerId,
-        date: data.date,
-        dueDate: data.dueDate,
-        notes: data.notes,
+        ...data,
+        userId,
         total: data.items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0),
         items: {
           create: data.items.map(item => ({
@@ -137,78 +154,15 @@ export async function createInvoice(data: {
   }
 }
 
-export async function createWeightTicket(data: {
-  ticketNumber: string
-  invoiceId: string
-  date: Date
-  truckNumber: string
-  driverName: string
-  grossWeight: number
-  tareWeight: number
-  netWeight: number
-  notes?: string
-}) {
-  try {
-    const weightTicket = await prisma.weightTicket.create({
-      data
-    })
-    revalidatePath('/weight-tickets')
-    return weightTicket
-  } catch (error) {
-    console.error('Error creating weight ticket:', error)
-    throw new Error('Failed to create weight ticket')
-  }
-}
-
-export async function getWeightTickets() {
-  try {
-    const weightTickets = await prisma.weightTicket.findMany({
-      include: {
-        invoice: {
-          include: {
-            customer: true
-          }
-        }
-      },
-      orderBy: {
-        date: 'desc'
-      }
-    })
-    return weightTickets
-  } catch (error) {
-    console.error('Error fetching weight tickets:', error)
-    throw new Error('Failed to fetch weight tickets')
-  }
-}
-
-export async function updateInvoiceStatus(id: string, status: string) {
-  const session = await getSession()
-  if (!session) throw new Error('Not authenticated')
-
-  const invoice = await prisma.invoice.update({
-    where: { id },
-    data: { status },
-  })
-
-  revalidatePath('/invoices')
-  return invoice
-}
-
-export async function deleteInvoice(id: string) {
-  const session = await getSession()
-  if (!session) throw new Error('Not authenticated')
-
-  await prisma.invoice.delete({
-    where: { id },
-  })
-
-  revalidatePath('/invoices')
-} 
-
 export async function getInvoiceById(id: string) {
+  const userId = await checkAuth()
+
   try {
     const invoice = await prisma.invoice.findUnique({
-      where: { id },
+      where: { 
+        id,
+        userId // Ensure user can only view their own invoices
+      },
       include: {
         customer: true,
         items: true,
@@ -231,3 +185,128 @@ export async function getInvoiceById(id: string) {
   }
 }
 
+export async function updateInvoiceStatus(id: string, status: string) {
+  const userId = await checkAuth()
+
+  const invoice = await prisma.invoice.update({
+    where: { 
+      id,
+      userId // Ensure user can only update their own invoices
+    },
+    data: { status }
+  })
+
+  revalidatePath('/invoices')
+  return invoice
+}
+
+export async function deleteInvoice(id: string) {
+  const userId = await checkAuth()
+
+  await prisma.invoice.delete({
+    where: { 
+      id,
+      userId // Ensure user can only delete their own invoices
+    }
+  })
+
+  revalidatePath('/invoices')
+}
+
+// Weight Ticket actions
+export async function createWeightTicket(data: {
+  ticketNumber: string
+  customerId: string
+  date: Date
+  truckNumber: string
+  driverName: string
+  grossWeight: number
+  tareWeight: number
+  netWeight: number
+  notes?: string
+  invoiceId?: string
+}) {
+  const userId = await checkAuth()
+
+  try {
+    const weightTicket = await prisma.weightTicket.create({
+      data: {
+        ...data,
+        userId
+      },
+      include: {
+        customer: true,
+        invoice: {
+          include: {
+            customer: true
+          }
+        }
+      }
+    })
+    revalidatePath('/weight-tickets')
+    return weightTicket
+  } catch (error) {
+    console.error('Error creating weight ticket:', error)
+    throw new Error('Failed to create weight ticket')
+  }
+}
+
+export async function getWeightTickets() {
+  const userId = await checkAuth()
+
+  try {
+    const weightTickets = await prisma.weightTicket.findMany({
+      where: { userId },
+      include: {
+        customer: true,
+        invoice: {
+          include: {
+            customer: true
+          }
+        }
+      },
+      orderBy: { date: 'desc' }
+    })
+    return weightTickets
+  } catch (error) {
+    console.error('Error fetching weight tickets:', error)
+    throw new Error('Failed to fetch weight tickets')
+  }
+}
+
+export async function getCustomerWeightTickets(customerId: string) {
+  const userId = await checkAuth()
+
+  return prisma.weightTicket.findMany({
+    where: {
+      userId,
+      customerId,
+    },
+    orderBy: {
+      date: 'desc'
+    },
+    include: {
+      customer: true,
+      invoice: true
+    }
+  })
+}
+
+// Get unassigned weight tickets (not linked to any invoice)
+export async function getUnassignedWeightTickets(customerId: string) {
+  const userId = await checkAuth()
+
+  return prisma.weightTicket.findMany({
+    where: {
+      userId,
+      customerId,
+      invoiceId: null
+    },
+    orderBy: {
+      date: 'desc'
+    },
+    include: {
+      customer: true
+    }
+  })
+}

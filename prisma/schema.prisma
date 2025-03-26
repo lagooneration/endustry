@@ -19,14 +19,20 @@ enum UserRole {
 }
 
 model User {
-  id                    String                 @id @default(cuid())
-  name                  String?
-  email                 String?                @unique
-  emailVerified         DateTime?
-  image                 String?
-  password              String?
-  role                  UserRole               @default(USER)
-  accounts              Account[]
+  id            String         @id @default(cuid())
+  name          String?
+  email         String?        @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  role          UserRole       @default(USER)
+  accounts      Account[]
+  // Add relations to other models
+  customers     Customer[]
+  invoices      Invoice[]
+  weightTickets WeightTicket[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
 }
 
 model Account {
@@ -67,29 +73,35 @@ model PasswordResetToken {
 }
 
 model Customer {
-  id        String   @id @default(cuid())
-  name      String
-  email     String
-  phone     String
-  address   String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  invoices  Invoice[]
+  id            String         @id @default(cuid())
+  name          String
+  email         String
+  phone         String
+  address       String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  userId        String
+  user          User          @relation(fields: [userId], references: [id])
+  invoices      Invoice[]
+  weightTickets WeightTicket[]
 }
 
 model Invoice {
-  id          String   @id @default(cuid())
-  number      String   @unique
-  customerId  String
-  customer    Customer @relation(fields: [customerId], references: [id])
-  date        DateTime
-  dueDate     DateTime
-  total       Float
-  status      String   @default("draft")
-  notes       String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  items       InvoiceItem[]
+  id            String         @id @default(cuid())
+  number        String        @unique
+  customerId    String
+  customer      Customer      @relation(fields: [customerId], references: [id])
+  date          DateTime
+  dueDate       DateTime
+  total         Float
+  status        String        @default("draft")
+  notes         String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  // Add user relation
+  userId        String
+  user          User          @relation(fields: [userId], references: [id])
+  items         InvoiceItem[]
   weightTickets WeightTicket[]
 }
 
@@ -106,19 +118,23 @@ model InvoiceItem {
 }
 
 model WeightTicket {
-  id          String   @id @default(cuid())
-  ticketNumber String  @unique
-  invoiceId   String
-  invoice     Invoice  @relation(fields: [invoiceId], references: [id])
-  date        DateTime
-  truckNumber String
-  driverName  String
-  grossWeight Float
-  tareWeight  Float
-  netWeight   Float
-  notes       String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String   @id @default(cuid())
+  ticketNumber String   @unique
+  invoiceId    String?  // Make this optional since not all tickets need invoices initially
+  invoice      Invoice? @relation(fields: [invoiceId], references: [id])
+  customerId   String   // Add this field
+  customer     Customer @relation(fields: [customerId], references: [id])
+  date         DateTime
+  truckNumber  String
+  driverName   String
+  grossWeight  Float
+  tareWeight   Float
+  netWeight    Float
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
 }
 
 enum InvoiceStatus {

@@ -1,3 +1,5 @@
+'use client'
+
 import { Card } from '@/components/ui/card'
 import { 
   DocumentTextIcon, 
@@ -5,27 +7,82 @@ import {
   CurrencyDollarIcon, 
   TruckIcon 
 } from '@heroicons/react/24/outline'
+import { useEffect, useState } from 'react'
+import { getInvoices, getWeightTickets } from '@/lib/actions'
+import { format } from 'date-fns'
+import Link from 'next/link'
 
-const stats = [
-  { name: 'Total Invoices', value: '12', icon: DocumentTextIcon },
-  { name: 'Total Weight Tickets', value: '24', icon: ScaleIcon },
-  { name: 'Total Revenue', value: '₹12,345', icon: CurrencyDollarIcon },
-  { name: 'Active Trucks', value: '8', icon: TruckIcon },
-]
+interface Invoice {
+  id: string
+  number: string
+  customer: {
+    name: string
+  }
+  total: number
+  status: string
+  date: string
+}
 
-const recentInvoices = [
-  { id: 'INV-001', client: 'Acme Corp', amount: '₹1,234', status: 'Paid', date: '2024-03-15' },
-  { id: 'INV-002', client: 'Globex Corp', amount: '₹2,345', status: 'Pending', date: '2024-03-14' },
-  { id: 'INV-003', client: 'Initech', amount: '₹3,456', status: 'Overdue', date: '2024-03-13' },
-]
-
-const recentWeightTickets = [
-  { id: 'WT-001', truck: 'TRK-123', weight: '25,000 kg', date: '2024-03-15' },
-  { id: 'WT-002', truck: 'TRK-456', weight: '30,000 kg', date: '2024-03-14' },
-  { id: 'WT-003', truck: 'TRK-789', weight: '28,000 kg', date: '2024-03-13' },
-]
+interface WeightTicket {
+  id: string
+  ticketNumber: string
+  truckNumber: string
+  netWeight: number
+  date: string | Date
+}
 
 export default function DashboardPage() {
+  const [invoices, setInvoices] = useState<Invoice[]>([])
+  const [weightTickets, setWeightTickets] = useState<WeightTicket[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [invoicesData, ticketsData] = await Promise.all([
+          getInvoices(),
+          getWeightTickets()
+        ])
+        setInvoices(invoicesData)
+        setWeightTickets(ticketsData)
+      } catch (err) {
+        console.error('Failed to load dashboard data:', err)
+        setError('Failed to load dashboard data')
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchData()
+  }, [])
+
+  // Calculate stats
+  const totalInvoices = invoices.length
+  const totalWeightTickets = weightTickets.length
+  const totalRevenue = invoices.reduce((sum, invoice) => sum + invoice.total, 0)
+  
+  // Get unique truck count from weight tickets
+  const uniqueTrucks = new Set(weightTickets.map(ticket => ticket.truckNumber)).size
+
+  const stats = [
+    { name: 'Total Invoices', value: totalInvoices.toString(), icon: DocumentTextIcon },
+    { name: 'Total Weight Tickets', value: totalWeightTickets.toString(), icon: ScaleIcon },
+    { name: 'Total Revenue', value: `₹${totalRevenue.toLocaleString()}`, icon: CurrencyDollarIcon },
+    { name: 'Active Trucks', value: uniqueTrucks.toString(), icon: TruckIcon },
+  ]
+
+  // Get recent invoices and weight tickets (last 3)
+  const recentInvoices = invoices.slice(0, 3)
+  const recentWeightTickets = weightTickets.slice(0, 3)
+
+  if (loading) {
+    return <div className="text-center py-10">Loading dashboard data...</div>
+  }
+
+  if (error) {
+    return <div className="text-center py-10 text-red-500">{error}</div>
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -62,40 +119,48 @@ export default function DashboardPage() {
           <div className="mt-4 flow-root">
             <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
               <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-                <table className="min-w-full divide-y divide-gray-300">
-                  <thead>
-                    <tr>
-                      <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">
-                        Invoice
-                      </th>
-                      <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                        Client
-                      </th>
-                      <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                        Amount
-                      </th>
-                      <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                        Status
-                      </th>
-                      <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                        Date
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {recentInvoices.map((invoice) => (
-                      <tr key={invoice.id}>
-                        <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">
-                          {invoice.id}
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{invoice.client}</td>
-                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{invoice.amount}</td>
-                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{invoice.status}</td>
-                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{invoice.date}</td>
+                {recentInvoices.length === 0 ? (
+                  <p className="text-center py-4 text-gray-500">No invoices found</p>
+                ) : (
+                  <table className="min-w-full divide-y divide-gray-300">
+                    <thead>
+                      <tr>
+                        <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">
+                          Invoice
+                        </th>
+                        <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                          Client
+                        </th>
+                        <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                          Amount
+                        </th>
+                        <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                          Status
+                        </th>
+                        <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                          Date
+                        </th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                      {recentInvoices.map((invoice) => (
+                        <tr key={invoice.id}>
+                          <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">
+                            <Link href={`/invoices/${invoice.id}`} className="text-indigo-600 hover:text-indigo-900">
+                              {invoice.number}
+                            </Link>
+                          </td>
+                          <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{invoice.customer.name}</td>
+                          <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">₹{invoice.total.toLocaleString()}</td>
+                          <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{invoice.status}</td>
+                          <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                            {format(new Date(invoice.date), 'PPP')}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
               </div>
             </div>
           </div>
@@ -107,36 +172,44 @@ export default function DashboardPage() {
           <div className="mt-4 flow-root">
             <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
               <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-                <table className="min-w-full divide-y divide-gray-300">
-                  <thead>
-                    <tr>
-                      <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">
-                        Ticket
-                      </th>
-                      <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                        Truck
-                      </th>
-                      <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                        Weight
-                      </th>
-                      <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                        Date
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {recentWeightTickets.map((ticket) => (
-                      <tr key={ticket.id}>
-                        <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">
-                          {ticket.id}
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{ticket.truck}</td>
-                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{ticket.weight}</td>
-                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{ticket.date}</td>
+                {recentWeightTickets.length === 0 ? (
+                  <p className="text-center py-4 text-gray-500">No weight tickets found</p>
+                ) : (
+                  <table className="min-w-full divide-y divide-gray-300">
+                    <thead>
+                      <tr>
+                        <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">
+                          Ticket
+                        </th>
+                        <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                          Truck
+                        </th>
+                        <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                          Weight
+                        </th>
+                        <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                          Date
+                        </th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                      {recentWeightTickets.map((ticket) => (
+                        <tr key={ticket.id}>
+                          <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">
+                            <Link href={`/weight-tickets/${ticket.id}`} className="text-indigo-600 hover:text-indigo-900">
+                              {ticket.ticketNumber}
+                            </Link>
+                          </td>
+                          <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{ticket.truckNumber}</td>
+                          <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{ticket.netWeight.toLocaleString()} kg</td>
+                          <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                            {format(new Date(ticket.date), 'PPP')}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
               </div>
             </div>
           </div>

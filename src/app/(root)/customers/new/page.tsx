@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { Card } from '@/components/ui/card'
 import { ArrowLeftIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link'
@@ -9,9 +9,11 @@ import { createCustomer } from '@/lib/actions'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { revalidatePath } from 'next/cache'
 
 export default function NewCustomerPage() {
   const router = useRouter()
+  const pathname = usePathname()
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
@@ -31,6 +33,7 @@ export default function NewCustomerPage() {
     try {
       await createCustomer(customerData)
       router.push('/customers')
+      router.refresh()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create customer')
     } finally {
