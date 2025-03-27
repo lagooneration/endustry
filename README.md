@@ -44,6 +44,7 @@ The frontend design of Endustry Admin draws inspiration from the [Xora project](
 - Cashier Photo by: Kaboompics.com: https://www.pexels.com/photo/push-cart-and-a-white-paperbag-5632402/
 - Hero Image by freepik: https://www.freepik.com/free-ai-image/person-using-ar-technology-their-daily-occupation_137499766.htm#fromView=search&page=1&position=41&uuid=467fb966-867b-4777-8f9f-e7b070385518&query=3d+image+industry+
 - Icon Image by studiogstock on Freepik: https://www.freepik.com/free-vector/bundle-engineering-set-icons_5984949.htm#from_element=detail_alsolike
+- Industry Photo by Kateryna Babaieva: https://www.pexels.com/photo/man-welding-round-window-frame-2965260/
 
 
 ## Quick Setup

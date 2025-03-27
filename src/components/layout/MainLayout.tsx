@@ -67,7 +67,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
                     <div className="flex h-16 shrink-0 items-center">
                       <img
                         className="h-8 w-auto"
-                        src="/logo-png.png"
+                        src="/images/logos/logo.svg"
                         alt="Your Company"
                       />
                       <span className="ml-2 text-xl font-semibold">Endustry</span>
@@ -115,10 +115,10 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
             <div className="flex h-16 shrink-0 items-center">
               <img
                 className="h-8 w-auto"
-                src="/logo-png.png"
+                src="/images/logos/logo.svg"
                 alt="Your Company"
               />
-              <span className="ml-2 text-xl font-semibold">Industry Admin</span>
+              <span className="ml-2 text-xl font-semibold">Endustry</span>
             </div>
             <nav className="flex flex-1 flex-col">
               <ul role="list" className="flex flex-1 flex-col gap-y-7">
@@ -168,12 +168,14 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
               <div className="flex items-center gap-x-4 lg:gap-x-6">
                 {/* Profile dropdown */}
                 <Menu as="div" className="relative">
-                  <Menu.Button className="-m-1.5 flex items-center p-1.5">
+                  <Menu.Button className="-m-1.5 flex items-center p-1.5 mr-4 max-md:mr-0">
                     <span className="sr-only">Open user menu</span>
                     <Avatar>
                       {/* <AvatarImage src={user?.image || ""} /> */}
                       <AvatarFallback className="bg-sky-500">
-                        {user?.name ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2) : <span className="text-white">EA</span>}
+                        {user?.name 
+                          ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2) 
+                          : <User className="text-white" />}
                       </AvatarFallback>
                     </Avatar>
                   </Menu.Button>
@@ -187,14 +189,14 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
                     leaveFrom="transform opacity-100 scale-100"
                     leaveTo="transform opacity-0 scale-95"
                   >
-                    <Menu.Items className="absolute right-0 z-10 mt-2.5 w-32 origin-top-right rounded-md bg-white py-2 shadow-lg ring-1 ring-gray-900/5 focus:outline-none">
+                    <Menu.Items className="absolute right-2 z-10 mt-2.5 w-32 origin-top-right rounded-md bg-white py-2 shadow-lg ring-1 ring-gray-900/5 focus:outline-none">
                       <Menu.Item>
                         {({ active }) => (
                           <Link
                             href="/profile"
                             className={classNames(active ? 'bg-gray-50' : '', 'block px-3 py-1 text-sm leading-6 text-gray-900')}
                           >
-                            Your profile
+                            Profile
                           </Link>
                         )}
                       </Menu.Item>

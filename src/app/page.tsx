@@ -24,11 +24,11 @@ export default function LandingPage() {
       <Header />
 
       <Hero />
-      {/* <Features /> */}
       <Feature />
       <Pricing />
       <Faq />
       <Download />
+      <Features />
       <CallToAction />
       <Footer />
       

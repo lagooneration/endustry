@@ -19,10 +19,23 @@ const features = [
   },
   {
     title: 'Customer Management',
-    description: 'Keep track of all your customers and their transactions in one place.',
-    image: '/images/customer-feature.png',
+    description: 'Keep track of all your customers and their transactions in one place. Send automated follow up payment reminders and more.',
+    image: '/images/customer-features.png',
     alt: 'Customer management dashboard'
+  },
+  {
+    title: 'Productivity Assessment',
+    description: 'Monitor workforce efficiency with AI-powered video surveillance that analyzes movement patterns and identifies productivity bottlenecks in real-time.',
+    image: '/images/productivity-feature.png',
+    alt: 'AI Video Surveillance Productivity Assessment'
+  },
+  {
+    title: 'Automated Production Line',
+    description: 'Streamline your manufacturing with intelligent automation that optimizes workflow, reduces errors, and increases throughput.',
+    image: '/images/comingsoon.jpg',
+    alt: 'Automated Production Line - Image Coming Soon'
   }
+
 ]
 
 const containerVariants = {
@@ -49,8 +62,8 @@ const itemVariants = {
 
 const Features = () => {
   return (
-    <section className="relative pt-60 pb-40 max-lg:pt-52 max-lg:pb-36 max-md:pt-36 max-md:pb-32">
-      <Element name="features">
+    <section className="relative pt-20 pb-20 max-lg:pt-20 max-lg:pb-20 max-md:pt-20 max-md:pb-20">
+      <Element name="feature">
       <div className="container">
         {/* Features Section */}
         <motion.div
@@ -58,12 +71,12 @@ const Features = () => {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            className="py-16 bg-gray-50"
+            className="py-16 bg-none"
             >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center">
-                <h2 className="text-3xl font-bold text-gray-900">Powerful Features for Your Business</h2>
-                <p className="mt-4 text-lg text-gray-500">
+                <h2 className="text-3xl font-bold text-gray-200">Powerful Features for Your Business</h2>
+                <p className="mt-4 text-lg text-gray-400">
                 Everything you need to manage your industrial operations efficiently
                 </p>
             </div>
@@ -73,8 +86,10 @@ const Features = () => {
                     <motion.div
                     key={feature.title}
                     variants={itemVariants}
-                    className="relative bg-white p-6 rounded-lg shadow-md"
+                    className="relative border-2 border-s4/25 bg-s4/20 p-4 backdrop-blur-[6px] rounded-lg shadow-md"
                     >
+                      
+            
                     <div className="h-48 mb-6 relative rounded-lg overflow-hidden">
                     <Image
                         src={feature.image}
@@ -83,8 +98,8 @@ const Features = () => {
                         className="object-cover"
                         />
                     </div>
-                    <h3 className="text-xl font-semibold text-gray-900">{feature.title}</h3>
-                    <p className="mt-2 text-gray-500">{feature.description}</p>
+                    <h3 className="text-xl font-semibold text-gray-100">{feature.title}</h3>
+                    <p className="mt-2 text-gray-300">{feature.description}</p>
                 </motion.div>
                 ))}
             </div>

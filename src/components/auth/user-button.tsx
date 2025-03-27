@@ -15,7 +15,7 @@ export const UserButton = () => {
       <Avatar>
         <AvatarImage src={user?.image || ""} />
         <AvatarFallback className="bg-sky-500">
-          <User className="text-white" />
+        {user?.name ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2) : <User className="text-white" />}
         </AvatarFallback>
       </Avatar>
       <LogoutButton>
