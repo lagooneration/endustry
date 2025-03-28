@@ -56,17 +56,14 @@ app.prepare().then(() => {
         port.open((err) => {
           if (err) {
             console.error('Error opening port:', err);
-            socket.emit('scale-error', 'Failed to open serial port');
-            
-            // For testing without hardware, emit simulated data
-            if (dev) {
-              console.log('Starting simulation mode');
-              simulateWeightData(socket);
-            }
+            console.log('Please ensure:');
+            console.log('1. No other application is using COM3');
+            console.log('2. You have sufficient permissions (try running as Administrator)');
+            console.log('3. The correct drivers are installed');
+            socket.emit('scale-error', 'Failed to open serial port: Access Denied');
             return;
           }
-
-          console.log('Serial port opened successfully');
+          console.log('Successfully connected to USB');
 
           // Handle incoming data
           parser.on('data', (data: string) => {

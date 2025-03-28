@@ -8,95 +8,112 @@ declare global {
 }
 
 export async function GET(req: Request) {
-  if (!global.io) {
-    console.log('Initializing Socket.IO server...');
-    
-    // Initialize Socket.IO
-    global.io = new Server({
-      path: '/api/scale',
-      addTrailingSlash: false,
-      cors: {
-        origin: '*',
-        methods: ['GET', 'POST']
-      }
-    });
+  try {
+    if (!global.io) {
+      console.log('Initializing Socket.IO server...');
+      
+      // Initialize Socket.IO
+      global.io = new Server({
+        path: '/api/scale',
+        addTrailingSlash: false,
+        cors: {
+          origin: '*',
+          methods: ['GET', 'POST']
+        }
+      });
 
-    global.io.on('connection', (socket) => {
-      console.log('Client connected to scale');
-      let port: SerialPort | null = null;
+      global.io.on('connection', (socket) => {
+        console.log('Client connected to scale');
+        let port: SerialPort | null = null;
 
-      try {
-        // Initialize Serial Port
-        port = new SerialPort({
-          path: process.env.ARDUINO_PORT || 'COM3',
-          baudRate: 9600,
-          autoOpen: false
-        });
+        try {
+          // Initialize Serial Port
+          port = new SerialPort({
+            path: process.env.ARDUINO_PORT || 'COM3',
+            baudRate: 9600,
+            autoOpen: false
+          });
 
-        const parser = port.pipe(new ReadlineParser({ delimiter: '\r\n' }));
+          port.open((err) => {
+            if (err) {
+              console.error('Detailed port error:', err.message);
+              socket.emit('scale-error', `Port error: ${err.message}`);
+              return;
+            }
+            
+            console.log('Successfully connected to COM3');
+            
+            // Set up error handlers
+            port.on('error', (error) => {
+              console.error('Port runtime error:', error);
+              socket.emit('scale-error', `Runtime error: ${error.message}`);
+            });
 
-        // Track weight stability
-        let lastWeight = 0;
-        let stabilityCounter = 0;
-        const STABILITY_THRESHOLD = 0.1;
-        const STABILITY_COUNT = 5;
+            // Handle incoming data
+            const parser = port.pipe(new ReadlineParser({ delimiter: '\r\n' }));
 
-        // Open port
-        port.open((err) => {
-          if (err) {
-            console.error('Error opening port:', err);
-            socket.emit('scale-error', 'Failed to open serial port');
-            return;
-          }
+            // Track weight stability
+            let lastWeight = 0;
+            let stabilityCounter = 0;
+            const STABILITY_THRESHOLD = 0.1;
+            const STABILITY_COUNT = 5;
 
-          console.log('Serial port opened successfully');
+            // Handle incoming data
+            parser.on('data', (data: string) => {
+              try {
+                const weight = parseFloat(data);
+                if (!isNaN(weight)) {
+                  const isStable = Math.abs(weight - lastWeight) < STABILITY_THRESHOLD;
+                  if (isStable) {
+                    stabilityCounter++;
+                  } else {
+                    stabilityCounter = 0;
+                  }
 
-          // Handle incoming data
-          parser.on('data', (data: string) => {
-            try {
-              const weight = parseFloat(data);
-              if (!isNaN(weight)) {
-                const isStable = Math.abs(weight - lastWeight) < STABILITY_THRESHOLD;
-                if (isStable) {
-                  stabilityCounter++;
-                } else {
-                  stabilityCounter = 0;
+                  socket.emit('weight-update', {
+                    weight,
+                    isStable: stabilityCounter >= STABILITY_COUNT,
+                    timestamp: new Date().toISOString()
+                  });
+
+                  lastWeight = weight;
                 }
-
-                socket.emit('weight-update', {
-                  weight,
-                  isStable: stabilityCounter >= STABILITY_COUNT,
-                  timestamp: new Date().toISOString()
-                });
-
-                lastWeight = weight;
+              } catch (error) {
+                console.error('Error parsing weight data:', error);
               }
-            } catch (error) {
-              console.error('Error parsing weight data:', error);
+            });
+          });
+
+          // Clean up on disconnect
+          socket.on('disconnect', () => {
+            console.log('Client disconnected');
+            if (port?.isOpen) {
+              port.close();
             }
           });
-        });
 
-        // Handle port errors
-        port.on('error', (error) => {
-          console.error('Serial port error:', error);
-          socket.emit('scale-error', 'Serial port error');
-        });
+        } catch (error) {
+          console.error('Port initialization error:', error);
+          socket.emit('scale-error', 'Failed to initialize port');
+        }
+      });
 
-        // Clean up on disconnect
-        socket.on('disconnect', () => {
-          console.log('Client disconnected');
-          if (port?.isOpen) {
-            port.close();
-          }
-        });
+      return NextResponse.json({ 
+        status: 'success',
+        message: 'Socket.IO server initialized' 
+      });
+    }
 
-      } catch (error) {
-        console.error('Error initializing serial port:', error);
-        socket.emit('scale-error', 'Failed to initialize serial port');
-      }
+    return NextResponse.json({ 
+      status: 'success',
+      message: 'Socket.IO server already running' 
     });
-  }
 
-  return NextResponse.json({ message: 'Socket.IO server initialized' });
+  } catch (error) {
+    console.error('Server initialization error:', error);
+    return NextResponse.json({ 
+      status: 'error',
+      message: error instanceof Error ? error.message : 'Unknown error occurred' 
+    }, { status: 500 });
+  }
 }

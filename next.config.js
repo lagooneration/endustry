@@ -19,8 +19,7 @@ const nextConfig = {
     }
     return config
   },
-  // Enable WebSocket in development
-  webpack5: true,
+  // WebSocket configuration
   webSocketServer: {
     path: '/api/scale',
   }

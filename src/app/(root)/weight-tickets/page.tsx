@@ -9,8 +9,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { WeightTicketsSkeleton } from '@/components/ui/custom/WeightTicketsSkeleton'
 import WeighingScale from '@/components/WeighingScale'
-import WeighingScaleReader from '@/components/WeighingScaleReader'
-// Define the WeightTicket type based on the schema and actions
+
 interface WeightTicket {
   id: string
   ticketNumber: string

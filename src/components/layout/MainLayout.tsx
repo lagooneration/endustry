@@ -214,7 +214,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
             </div>
           </div>
 
-          <main className="py-10">
+          <main className="py-10 h-screen">
             <div className="px-4 sm:px-6 lg:px-8">
               {children}
             </div>

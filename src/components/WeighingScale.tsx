@@ -3,8 +3,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, PlusIcon } from 'lucide-react';
 import io from 'socket.io-client';
+import Link from 'next/link';
 
 interface WeighingScaleProps {
   onWeightChange?: (weight: number) => void;
@@ -125,6 +126,13 @@ const WeighingScale: React.FC<WeighingScaleProps> = ({ onWeightChange, onWeightS
           </div>
         )}
       </div>
+      <Link
+          href="/weight-tickets/new"
+          className="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+        >
+          <PlusIcon className="-ml-0.5 mr-1.5 h-5 w-5" aria-hidden="true" />
+          Create
+        </Link>
     </Card>
   );
 };
