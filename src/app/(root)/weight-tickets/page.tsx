@@ -8,6 +8,8 @@ import { getWeightTickets } from '@/lib/actions'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { WeightTicketsSkeleton } from '@/components/ui/custom/WeightTicketsSkeleton'
+import WeighingScale from '@/components/WeighingScale'
+import WeighingScaleReader from '@/components/WeighingScaleReader'
 // Define the WeightTicket type based on the schema and actions
 interface WeightTicket {
   id: string
@@ -77,9 +79,15 @@ export default function WeightTicketsPage() {
           className="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
         >
           <PlusIcon className="-ml-0.5 mr-1.5 h-5 w-5" aria-hidden="true" />
-          New Weight Ticket
+          Add New
         </Link>
       </div>
+      
+      {/* Weighing Scale Component */}
+      <Card className="p-6">
+        <h2 className="text-lg font-medium text-gray-900 mb-4">Live Weight Reading</h2>
+        <WeighingScale />
+      </Card>
       
       {/* Weight Tickets List */}
       <Card className="p-6">

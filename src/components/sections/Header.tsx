@@ -2,7 +2,6 @@
 import { Link as LinkScroll } from "react-scroll";
 import { useEffect, useState } from "react";
 import clsx from "clsx";
-import Link from "next/link";
 import { Button } from "@/components/ui/custom/button";
 import { LoginButton } from "@/components/auth/login-button";
 interface NavLinkProps {
@@ -47,7 +46,7 @@ const Header = () => {
       )}
     >
       <div className="container flex h-14 items-center max-lg:px-5">
-        <a className="lg:hidden flex-1 cursor-pointer z-2">
+        <a href="/" className="lg:hidden flex-1 cursor-pointer z-2">
           <img src="/logo.svg" width={38} height={55} alt="logo" />
         </a>
 

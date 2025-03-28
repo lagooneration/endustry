@@ -67,7 +67,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
                     <div className="flex h-16 shrink-0 items-center">
                       <img
                         className="h-8 w-auto"
-                        src="/images/logos/logo.svg"
+                        src="/anti-logo.svg"
                         alt="Your Company"
                       />
                       <span className="ml-2 text-xl font-semibold">Endustry</span>
@@ -115,7 +115,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
             <div className="flex h-16 shrink-0 items-center">
               <img
                 className="h-8 w-auto"
-                src="/images/logos/logo.svg"
+                src="/anti-logo.svg"
                 alt="Your Company"
               />
               <span className="ml-2 text-xl font-semibold">Endustry</span>

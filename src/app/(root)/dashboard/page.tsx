@@ -11,6 +11,7 @@ import { useEffect, useState } from 'react'
 import { getInvoices, getWeightTickets } from '@/lib/actions'
 import { format } from 'date-fns'
 import Link from 'next/link'
+import DashboardSkeleton from '@/components/ui/custom/DashboardSkeleton'
 
 interface Invoice {
   id: string
@@ -76,7 +77,7 @@ export default function DashboardPage() {
   const recentWeightTickets = weightTickets.slice(0, 3)
 
   if (loading) {
-    return <div className="text-center py-10">Loading dashboard data...</div>
+    return <DashboardSkeleton />
   }
 
   if (error) {
