@@ -63,7 +63,7 @@ export default async function WeightTicketPage({ params }: { params: { id: strin
               </dl>
             </div>
 
-            <div>
+            {/* <div>
               <h2 className="text-lg font-medium text-gray-900">Customer</h2>
               <dl className="mt-4 space-y-3">
                 <div>
@@ -86,7 +86,7 @@ export default async function WeightTicketPage({ params }: { params: { id: strin
                   </dd>
                 </div>
               </dl>
-            </div>
+            </div> */}
           </div>
 
           <div className="mt-8">

@@ -68,119 +68,74 @@ export default async function InvoicePage({ params }: { params: { id: string } }
       </div>
 
       <Card className="p-6 print:shadow-none print:border-none">
-        <div className="grid grid-cols-2 gap-6 mb-8">
+        <div className="flex justify-between mb-8">
           <div>
-            <h2 className="text-lg font-medium text-gray-900 mb-2">From</h2>
-            <p className="text-gray-700">Your Company Name</p>
-            <p className="text-gray-700">123 Business Street</p>
-            <p className="text-gray-700">City, State ZIP</p>
-            <p className="text-gray-700">contact@yourcompany.com</p>
-          </div>
-          <div>
-            <h2 className="text-lg font-medium text-gray-900 mb-2">To</h2>
+            <h2 className="text-lg mb-2">Billed To:</h2>
             <p className="text-gray-700">{invoice.customer.name}</p>
-            <p className="text-gray-700">{invoice.customer.email}</p>
-            <p className="text-gray-700">{invoice.customer.phone}</p>
             <p className="text-gray-700">{invoice.customer.address}</p>
           </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-6 mb-8">
-          <div>
-            <h2 className="text-lg font-medium text-gray-900 mb-2">Invoice Details</h2>
-            <div className="grid grid-cols-2 gap-2">
-              <p className="text-gray-500">Invoice Number:</p>
-              <p className="text-gray-700">{invoice.number}</p>
-              
-              <p className="text-gray-500">Date:</p>
-              <p className="text-gray-700">{format(new Date(invoice.date), 'MMM d, yyyy')}</p>
-              
-              <p className="text-gray-500">Due Date:</p>
-              <p className="text-gray-700">{format(new Date(invoice.dueDate), 'MMM d, yyyy')}</p>
-              
-              <p className="text-gray-500">Status:</p>
-              <p>
-                <span
-                  className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                    invoice.status === 'PAID'
-                      ? 'bg-green-100 text-green-800'
-                      : invoice.status === 'PENDING'
-                      ? 'bg-yellow-100 text-yellow-800'
-                      : invoice.status === 'OVERDUE'
-                      ? 'bg-red-100 text-red-800'
-                      : 'bg-gray-100 text-gray-800'
-                  }`}
-                >
-                  {invoice.status}
-                </span>
-              </p>
-            </div>
+          <div className="text-right">
+            <p className="text-gray-700">Invoice No: #{invoice.number}</p>
+            <p className="text-gray-700">Issued on: {format(new Date(invoice.date), 'MMMM d, yyyy')}</p>
+            <p className="text-gray-700">Payment Due: {format(new Date(invoice.dueDate), 'MMMM d, yyyy')}</p>
           </div>
         </div>
 
-        <h2 className="text-lg font-medium text-gray-900 mb-4">Items</h2>
         <div className="overflow-x-auto mb-8">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Description
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Quantity
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Unit Price
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Amount
-                </th>
+          <table className="min-w-full">
+            <thead>
+              <tr className="border-b">
+                <th className="text-left py-3 px-4">Services</th>
+                <th className="text-center py-3 px-4">Qty.</th>
+                <th className="text-right py-3 px-4">Price</th>
+                <th className="text-right py-3 px-4">Total</th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody>
               {invoice.items.map((item) => (
-                <tr key={item.id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {item.description}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
-                    {item.quantity}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
-                    ₹{item.unitPrice.toFixed(2)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
-                    ₹{item.total.toFixed(2)}
-                  </td>
+                <tr key={item.id} className="border-b">
+                  <td className="py-3 px-4">{item.description}</td>
+                  <td className="text-center py-3 px-4">{item.quantity}</td>
+                  <td className="text-right py-3 px-4">₹{item.unitPrice.toFixed(2)}</td>
+                  <td className="text-right py-3 px-4">₹{item.total.toFixed(2)}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
 
-        <div className="flex justify-end">
+        <div className="flex justify-end mb-8">
           <div className="w-64">
-            <div className="flex justify-between py-2 border-t border-gray-200">
-              <dt className="text-sm font-medium text-gray-500">Subtotal</dt>
-              <dd className="text-sm font-medium text-gray-900">₹{subtotal.toFixed(2)}</dd>
-            </div>
-            <div className="flex justify-between py-2 border-t border-gray-200">
-              <dt className="text-sm font-medium text-gray-500">GST (18%)</dt>
-              <dd className="text-sm font-medium text-gray-900">₹{(subtotal * 0.18).toFixed(2)}</dd>
-            </div>
-            <div className="flex justify-between py-2 border-t border-gray-200">
-              <dt className="text-base font-bold text-gray-900">Total</dt>
-              <dd className="text-base font-bold text-gray-900">₹{invoice.total.toFixed(2)}</dd>
+            <div className="flex justify-between py-2">
+              <span>Total (INR)</span>
+              <span className="font-bold">₹{invoice.total.toFixed(2)}</span>
             </div>
           </div>
         </div>
 
-        {invoice.notes && (
-          <div className="mt-8 border-t border-gray-200 pt-4">
-            <h2 className="text-lg font-medium text-gray-900 mb-2">Notes</h2>
-            <p className="text-gray-700 whitespace-pre-line">{invoice.notes}</p>
+        <div className="grid grid-cols-3 gap-6 pt-8 border-t">
+          <div>
+            <div className="mb-2">
+              <img src="/company-logo.png" alt="Company Logo" className="h-8 w-8" />
+              <h3 className="font-medium mt-2">Dudi Ram Pvt. Ltd</h3>
+            </div>
+            <p className="text-sm text-gray-600">email@company.com</p>
+            <p className="text-sm text-gray-600">IFSC: ABC-098765432</p>
+            <p className="text-sm text-gray-600">UPI ID: 123456789-123</p>
           </div>
-        )}
+          
+          <div>
+            <h3 className="font-medium mb-2">Payment Instructions</h3>
+            <p className="text-sm text-gray-600">Bank transfer, UPI</p>
+            <p className="text-sm text-gray-600">UPI Label: 123456789-123</p>
+            <p className="text-sm text-gray-600">IFSC Label: ABC-098765432</p>
+          </div>
+
+          <div>
+            <h3 className="font-medium mb-2">Additional Notes</h3>
+            <p className="text-sm text-gray-600">Have a great day</p>
+          </div>
+        </div>
       </Card>
     </div>
   )

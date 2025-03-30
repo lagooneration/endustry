@@ -22,19 +22,43 @@ export function WeightSourceSelector({
   const [captureMode, setCaptureMode] = useState<'gross' | 'tare' | null>(null);
   const [manualMode, setManualMode] = useState(false);
   const [manualWeight, setManualWeight] = useState('');
+  const [socket, setSocket] = useState<any>(null);
   
-  // Get weight data from both sources
+  // Modified to get connectToScale function
+  const { scaleData, connectToScale } = useScaleSocket();
   const tbData = useThingsboardSocket();
-  const scaleData = useScaleSocket();
 
-  // Determine which source is available
   const isLocalScaleConnected = scaleData.isConnected;
   const isThingsboardConnected = tbData.isConnected;
   const hasActiveConnection = isLocalScaleConnected || isThingsboardConnected;
 
-  // Use local scale weight if available, otherwise use ThingsBoard weight
   const currentWeight = isLocalScaleConnected ? scaleData.weight : tbData.weight;
   const isStable = isLocalScaleConnected ? scaleData.isStable : true;
+
+  // Handle connect button click
+  const handleConnect = async () => {
+    const newSocket = await connectToScale();
+    if (newSocket) {
+      setSocket(newSocket);
+    }
+  };
+
+  // Handle disconnect
+  const handleDisconnect = () => {
+    if (socket) {
+      socket.disconnect();
+      setSocket(null);
+    }
+  };
+
+  // Clean up on unmount
+  useEffect(() => {
+    return () => {
+      if (socket) {
+        socket.disconnect();
+      }
+    };
+  }, [socket]);
 
   const handleWeightCapture = () => {
     if (manualMode) {
@@ -72,14 +96,32 @@ export function WeightSourceSelector({
                 : 'No scale connection available'}
             </p>
           </div>
-          {!hasActiveConnection && (
-            <Button
-              onClick={() => setManualMode(true)}
-              variant="secondary"
-            >
-              Enter Weight Manually
-            </Button>
-          )}
+          <div className="flex gap-2">
+            {!hasActiveConnection && !manualMode && (
+              <>
+                <Button
+                  onClick={handleConnect}
+                  variant="default"
+                >
+                  Connect to Scale
+                </Button>
+                <Button
+                  onClick={() => setManualMode(true)}
+                  variant="secondary"
+                >
+                  Enter Manually
+                </Button>
+              </>
+            )}
+            {isLocalScaleConnected && (
+              <Button
+                onClick={handleDisconnect}
+                variant="destructive"
+              >
+                Disconnect
+              </Button>
+            )}
+          </div>
         </div>
 
         {!hasActiveConnection && !manualMode && (
