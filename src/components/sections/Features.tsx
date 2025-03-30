@@ -30,6 +30,12 @@ const features = [
     alt: 'AI Video Surveillance Productivity Assessment'
   },
   {
+    title: 'IoT Devices',
+    description: 'Connect and monitor your industrial equipment with smart IoT devices that provide real-time data, predictive maintenance alerts, and remote control capabilities.',
+    image: '/images/iot-feature.png',
+    alt: 'IoT Device Management Dashboard'
+  },
+  {
     title: 'Automated Production Line',
     description: 'Streamline your manufacturing with intelligent automation that optimizes workflow, reduces errors, and increases throughput.',
     image: '/images/comingsoon.jpg',
