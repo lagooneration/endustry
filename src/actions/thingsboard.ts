@@ -193,3 +193,88 @@ export async function createSetting(data: {
       throw error;
     }
   }
+
+  export async function createDeviceSetting(data: { entityType: string; entityId: string }) {
+    try {
+      const session = await auth();
+      if (!session?.user?.id) throw new Error("Unauthorized");
+
+      // First verify ThingsBoard connection
+      const loginResult = await loginTb();
+      if (loginResult.error || !loginResult.token) {
+        throw new Error("Failed to login to ThingsBoard");
+      }
+
+      // Verify the device exists in ThingsBoard by trying to fetch its data
+      axios.defaults.headers.common['X-Authorization'] = `Bearer ${loginResult.token}`;
+      try {
+        await axios.get(
+          `/api/plugins/telemetry/${data.entityType}/${data.entityId}/values/timeseries?keys=weight`
+        );
+      } catch (error) {
+        throw new Error("Device not found in ThingsBoard or invalid credentials");
+      }
+
+      // If ThingsBoard verification passes, create device setting
+      const result = await prisma.deviceSetting.create({
+        data: {
+          entityType: data.entityType,
+          entityId: data.entityId,
+          userId: session.user.id,
+        },
+      });
+
+      revalidatePath("/");
+      return { data: result };
+    } catch (error) {
+      console.error('Error creating device setting:', error);
+      return { error: error instanceof Error ? error : new Error('Unknown error') };
+    }
+  }
+  
+  export async function readDeviceSetting() {
+    try {
+      const session = await auth();
+      if (!session?.user?.id) throw new Error("Unauthorized");
+
+      const setting = await prisma.deviceSetting.findFirst({
+        where: {
+          userId: session.user.id,
+        },
+        orderBy: { 
+          createdAt: "desc" 
+        },
+      });
+
+      // Serialize the data before returning
+      if (setting) {
+        return {
+          entityType: setting.entityType,
+          entityId: setting.entityId,
+          createdAt: setting.createdAt.toISOString(),
+        };
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('Error reading device setting:', error);
+      return null;
+    }
+  }
+
+  export async function getDeviceSetting(deviceId: string) {
+    try {
+      const device = await prisma.device.findUnique({
+        where: { id: deviceId },
+        select: {
+          entityType: true,
+          entityId: true
+        }
+      });
+      
+      return device;
+    } catch (error) {
+      console.error('Error fetching device setting:', error);
+      throw error;
+    }
+  }

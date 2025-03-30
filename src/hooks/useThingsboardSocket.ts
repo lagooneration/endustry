@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { loginTb, readSetting } from '@/actions/thingsboard';
+import { loginTb, readDeviceSetting } from '@/actions/thingsboard';
 
 interface ThingsboardData {
   weight: number;
@@ -16,18 +16,20 @@ export function useThingsboardSocket() {
 
   useEffect(() => {
     let webSocket: WebSocket | null = null;
+    let reconnectTimeout: NodeJS.Timeout;
 
     async function connectToThingsboard() {
       try {
         const login = await loginTb();
-        const setting = await readSetting();
+        const setting = await readDeviceSetting();
 
-        if (setting?.data?.[0] && login.token) {
-          const { entityType, entityId } = setting.data[0];
-          webSocket = new WebSocket(process.env.NEXT_PUBLIC_TB_WS_URL || "");
+        if (setting && login.token) {
+          const { entityType, entityId } = setting;
+          const wsUrl = process.env.NEXT_PUBLIC_TB_WS_URL || "";
+          webSocket = new WebSocket(wsUrl);
 
           webSocket.onopen = () => {
-            setTbData(prev => ({ ...prev, isConnected: true }));
+            setTbData(prev => ({ ...prev, isConnected: true, error: null }));
             const object = {
               authCmd: {
                 cmdId: 0,
@@ -71,20 +73,22 @@ export function useThingsboardSocket() {
           };
         }
       } catch (error) {
-        setTbData(prev => ({ 
-          ...prev, 
+        setTbData(prev => ({
+          ...prev,
+          isConnected: false,
           error: "Failed to connect to ThingsBoard"
         }));
-        console.error("ThingsBoard connection error:", error);
+        
+        // Attempt to reconnect after 5 seconds
+        reconnectTimeout = setTimeout(connectToThingsboard, 5000);
       }
     }
 
     connectToThingsboard();
 
     return () => {
-      if (webSocket) {
-        webSocket.close();
-      }
+      webSocket?.close();
+      clearTimeout(reconnectTimeout);
     };
   }, []);
 

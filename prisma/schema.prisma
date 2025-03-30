@@ -32,6 +32,7 @@ model User {
   invoices      Invoice[]
   weightTickets WeightTicket[]
   device        Device[]
+  deviceSetting DeviceSetting[]
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
 }
@@ -169,4 +170,13 @@ model Device {
   user              User     @relation(fields: [userId], references: [id])
 
   @@unique([userId, entityId])
+}
+
+model DeviceSetting {
+  id         String   @id @default(uuid())
+  entityType String
+  entityId   String
+  createdAt  DateTime @default(now())
+  userId            String
+  user              User     @relation(fields: [userId], references: [id])
 }

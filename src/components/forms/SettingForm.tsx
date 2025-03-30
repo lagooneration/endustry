@@ -23,6 +23,9 @@ const FormSchema = z.object({
   name: z.string({
     required_error: "Device name is required",
   }),
+  deviceId: z.string({
+    required_error: "deviceId is required",
+  }),
   entityType: z.string({
     required_error: "entityType is required",
   }),
