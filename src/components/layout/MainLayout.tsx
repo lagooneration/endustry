@@ -16,7 +16,7 @@ import { LogoutButton } from '../auth/logout-buton'
 import { ExitIcon } from '@radix-ui/react-icons'
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User } from 'lucide-react'
+import { User, WashingMachine } from 'lucide-react'
 
 
 const navigation = [
@@ -24,6 +24,7 @@ const navigation = [
   { name: 'Invoices', href: '/invoices', icon: DocumentTextIcon },
   { name: 'Weight Tickets', href: '/weight-tickets', icon: ScaleIcon },
   { name: 'Customers', href: '/customers', icon: UsersIcon },
+  { name: 'Devices', href: '/devices', icon: WashingMachine },
 ]
 
 function classNames(...classes: string[]) {

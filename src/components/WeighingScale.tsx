@@ -15,7 +15,7 @@ interface WeighingScaleProps {
 const WeighingScale: React.FC<WeighingScaleProps> = ({ onWeightChange, onWeightStabilize }) => {
   const [currentWeight, setCurrentWeight] = useState<number>(0);
   const [isStable, setIsStable] = useState<boolean>(false);
-  const [connectionStatus, setConnectionStatus] = useState<'idle' | 'connecting' | 'connected' | 'error'>('idle');
+  const [connectionStatus, setConnectionStatus] = useState<'disconnected' | 'connecting' | 'connected' | 'error'>('disconnected');
   const [socket, setSocket] = useState<any>(null);
   const [errorMessage, setErrorMessage] = useState<string>('');
 
@@ -63,7 +63,7 @@ const WeighingScale: React.FC<WeighingScaleProps> = ({ onWeightChange, onWeightS
 
       newSocket.on('disconnect', () => {
         console.log('Disconnected from scale server');
-        setConnectionStatus('idle');
+        setConnectionStatus('disconnected');
       });
 
       setSocket(newSocket);
@@ -78,7 +78,7 @@ const WeighingScale: React.FC<WeighingScaleProps> = ({ onWeightChange, onWeightS
     if (socket) {
       socket.disconnect();
       setSocket(null);
-      setConnectionStatus('idle');
+      setConnectionStatus('disconnected');
       setErrorMessage('');
     }
   }, [socket]);
@@ -91,14 +91,21 @@ const WeighingScale: React.FC<WeighingScaleProps> = ({ onWeightChange, onWeightS
     };
   }, [socket]);
 
+  const captureWeight = () => {
+    if (currentWeight > 0 && isStable) {
+      onWeightChange?.(currentWeight);
+    }
+  };
+
   return (
     <Card className="p-6">
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-medium">Weight Scale</h3>
+            <h3 className="text-lg font-medium">Live Weight Reading</h3>
             <p className="text-sm text-gray-500">
               Status: {connectionStatus.charAt(0).toUpperCase() + connectionStatus.slice(1)}
+              {isStable && currentWeight > 0 && ' - Ready to Capture'}
             </p>
           </div>
           <Button
@@ -114,10 +121,20 @@ const WeighingScale: React.FC<WeighingScaleProps> = ({ onWeightChange, onWeightS
           <div className="text-4xl font-bold text-indigo-600">
             {currentWeight.toFixed(2)} kg
           </div>
-          <div className="mt-2 text-sm text-gray-500">
-            Stability: {isStable ? 'Stable' : 'Unstable'}
+          <div className={`mt-2 text-sm ${isStable ? 'text-green-600' : 'text-orange-500'}`}>
+            {isStable ? '✓ Stable Reading' : '⟳ Stabilizing...'}
           </div>
         </div>
+
+        <Button
+          onClick={captureWeight}
+          variant="default"
+          disabled={currentWeight <= 0 || !isStable}
+          className="w-full"
+        >
+          <PlusIcon className="-ml-0.5 mr-1.5 h-5 w-5" aria-hidden="true" />
+          Capture Current Weight
+        </Button>
 
         {errorMessage && (
           <div className="flex items-center gap-2 text-red-500 text-sm bg-red-50 p-3 rounded-md">
@@ -126,13 +143,6 @@ const WeighingScale: React.FC<WeighingScaleProps> = ({ onWeightChange, onWeightS
           </div>
         )}
       </div>
-      <Link
-          href="/weight-tickets/new"
-          className="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-        >
-          <PlusIcon className="-ml-0.5 mr-1.5 h-5 w-5" aria-hidden="true" />
-          Create
-        </Link>
     </Card>
   );
 };

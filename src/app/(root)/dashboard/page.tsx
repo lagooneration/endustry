@@ -202,7 +202,7 @@ export default function DashboardPage() {
                             </Link>
                           </td>
                           <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{ticket.truckNumber}</td>
-                          <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{ticket.netWeight.toLocaleString()} kg</td>
+                          <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{ticket.netWeight} kg</td>
                           <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                             {format(new Date(ticket.date), 'PPP')}
                           </td>

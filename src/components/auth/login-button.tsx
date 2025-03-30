@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 import { LoginForm } from "@/components/auth/login-form";
 
 interface LoginButtonProps {
@@ -27,6 +27,7 @@ export const LoginButton = ({
       <Dialog>
         <DialogTrigger asChild={asChild}>{children}</DialogTrigger>
         <DialogContent className="p-0 w-auto bg-transparent border-none">
+          <DialogDescription></DialogDescription>
           <LoginForm />
         </DialogContent>
       </Dialog>

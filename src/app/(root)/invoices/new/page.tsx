@@ -5,7 +5,7 @@ import { Card } from '@/components/ui/card'
 import { ArrowLeftIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link'
 import { createInvoice } from '@/lib/actions'
-import CustomerSelect from '@/components/layout/CustomerSelect'
+import { CustomerSelectClient } from '@/components/layout/CustomerSelectClient'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
@@ -91,7 +91,7 @@ export default function NewInvoicePage() {
             </div>
 
             <Suspense fallback={<div>Loading customers...</div>}>
-              <CustomerSelect />
+              <CustomerSelectClient />
             </Suspense>
 
             <div>

@@ -44,44 +44,56 @@ export async function GET(req: Request) {
             console.log('Successfully connected to COM3');
             
             // Set up error handlers
-            port.on('error', (error) => {
-              console.error('Port runtime error:', error);
-              socket.emit('scale-error', `Runtime error: ${error.message}`);
-            });
+            if (port) {
+              port.on('error', (error) => {
+                console.error('Port runtime error:', error);
+                socket.emit('scale-error', `Runtime error: ${error.message}`);
+              });
 
-            // Handle incoming data
-            const parser = port.pipe(new ReadlineParser({ delimiter: '\r\n' }));
+              // Handle incoming data
+              const parser = port.pipe(new ReadlineParser({ delimiter: '\r\n' }));
 
-            // Track weight stability
-            let lastWeight = 0;
-            let stabilityCounter = 0;
-            const STABILITY_THRESHOLD = 0.1;
-            const STABILITY_COUNT = 5;
+              // Track weight stability
+              let lastWeight = 0;
+              let stabilityCounter = 0;
+              const STABILITY_THRESHOLD = 0.1;
+              const STABILITY_COUNT = 5;
 
-            // Handle incoming data
-            parser.on('data', (data: string) => {
-              try {
-                const weight = parseFloat(data);
-                if (!isNaN(weight)) {
-                  const isStable = Math.abs(weight - lastWeight) < STABILITY_THRESHOLD;
-                  if (isStable) {
-                    stabilityCounter++;
+              // Handle incoming data
+              parser.on('data', (data: string) => {
+                try {
+                  console.log('Raw data received:', data);
+                  const weight = parseFloat(data);
+                  if (!isNaN(weight)) {
+                    console.log('Parsed weight:', weight);
+                    const isStable = Math.abs(weight - lastWeight) < STABILITY_THRESHOLD;
+                    if (isStable) {
+                      stabilityCounter++;
+                      console.log('Stability counter increased:', stabilityCounter);
+                    } else {
+                      stabilityCounter = 0;
+                      console.log('Stability reset, difference:', Math.abs(weight - lastWeight));
+                    }
+
+                    socket.emit('weight-update', {
+                      weight,
+                      isStable: stabilityCounter >= STABILITY_COUNT,
+                      timestamp: new Date().toISOString()
+                    });
+
+                    lastWeight = weight;
                   } else {
-                    stabilityCounter = 0;
+                    console.log('Failed to parse weight from data:', data);
                   }
-
-                  socket.emit('weight-update', {
-                    weight,
-                    isStable: stabilityCounter >= STABILITY_COUNT,
-                    timestamp: new Date().toISOString()
-                  });
-
-                  lastWeight = weight;
+                } catch (error) {
+                  console.error('Error parsing weight data:', error);
+                  socket.emit('scale-error', `Data parsing error: ${error instanceof Error ? error.message : 'Unknown error'}`);
                 }
-              } catch (error) {
-                console.error('Error parsing weight data:', error);
-              }
-            });
+              });
+            } else {
+              console.error('Port is null after successful open');
+              socket.emit('scale-error', 'Port is null after successful open');
+            }
           });
 
           // Clean up on disconnect
@@ -94,7 +106,7 @@ export async function GET(req: Request) {
 
         } catch (error) {
           console.error('Port initialization error:', error);
-          socket.emit('scale-error', 'Failed to initialize port');
+          socket.emit('scale-error', `Failed to initialize port: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
       });
 

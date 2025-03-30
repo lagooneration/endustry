@@ -19,7 +19,6 @@ interface WeightTicket {
   driverName: string
   grossWeight: number
   tareWeight: number
-  netWeight: number
   notes?: string
   invoiceId?: string | null
   customer: {
@@ -146,13 +145,10 @@ export default function WeightTicketsPage() {
                           {ticket.driverName}
                         </td>
                         <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                          {ticket.grossWeight.toLocaleString()} kg
+                          {ticket.grossWeight} kg
                         </td>
                         <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                          {ticket.tareWeight.toLocaleString()} kg
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                          {ticket.netWeight.toLocaleString()} kg
+                          {ticket.tareWeight} kg
                         </td>
                         <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                           {format(new Date(ticket.date), 'PPP')}

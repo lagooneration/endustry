@@ -1,5 +1,4 @@
 'use client'
-
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card } from '@/components/ui/card'
@@ -7,32 +6,62 @@ import { ArrowLeftIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { createWeightTicket } from '@/lib/actions'
-import CustomerSelect from '@/components/layout/CustomerSelect'
-import WeighingScale from '@/components/WeighingScale'
+import { CustomerSelectClient } from '@/components/layout/CustomerSelectClient'
+import { Label } from '@/components/ui/label'
+import { NetWeight } from '@/components/ui/custom/NetWeight'
+import { WeightSourceSelector } from '@/components/ui/custom/WeightSourceSelector'
+
+interface WeightTicketForm {
+  customerId: string;
+  truckNumber: string;
+  driverName: string;
+  grossWeight: string;
+  tareWeight: string;
+  netWeight: string;
+  notes: string;
+}
 
 export default function NewWeightTicketPage() {
   const router = useRouter()
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const [grossWeight, setGrossWeight] = useState(0)
-  const [tareWeight, setTareWeight] = useState(0)
+  const [formData, setFormData] = useState<WeightTicketForm>({
+    customerId: '',
+    truckNumber: '',
+    driverName: '',
+    grossWeight: '',
+    tareWeight: '',
+    netWeight: '',
+    notes: ''
+  })
 
-  // Calculate net weight automatically
-  const netWeight = grossWeight - tareWeight
-
-  const handleWeightChange = (weight: number) => {
-    // Update the current weight field based on which weight is being measured
-    if (grossWeight === 0) {
-      setGrossWeight(weight)
-    } else if (tareWeight === 0) {
-      setTareWeight(weight)
-    }
+  // Update form data
+  const updateFormData = (field: keyof WeightTicketForm, value: string) => {
+    setFormData(prev => {
+      const newData = { ...prev, [field]: value }
+      // Calculate net weight if both gross and tare weights are present
+      if (field === 'grossWeight' || field === 'tareWeight') {
+        const gross = parseFloat(field === 'grossWeight' ? value : prev.grossWeight)
+        const tare = parseFloat(field === 'tareWeight' ? value : prev.tareWeight)
+        if (!isNaN(gross) && !isNaN(tare)) {
+          newData.netWeight = (gross - tare).toString()
+        }
+      }
+      return newData
+    })
   }
 
-  const handleWeightStabilize = (weight: number) => {
-    // Optionally handle stable weight readings
-    console.log('Weight stabilized at:', weight)
+  // Handle weight capture from NetWeight component
+  const handleGrossWeightCapture = (weight: number) => {
+    updateFormData('grossWeight', weight.toString())
+  }
+
+  const handleTareWeightCapture = (weight: number) => {
+    updateFormData('tareWeight', weight.toString())
+  }
+
+  const handleNetWeightUpdate = (weight: number) => {
+    updateFormData('netWeight', weight.toString())
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -40,24 +69,50 @@ export default function NewWeightTicketPage() {
     setError('')
     setLoading(true)
 
-    const formData = new FormData(e.currentTarget)
-    const data = {
-      ticketNumber: `WT-${Date.now()}`,
-      customerId: formData.get('customerId') as string,
-      date: new Date(),
-      truckNumber: formData.get('truck-number') as string,
-      driverName: formData.get('driver-name') as string,
-      grossWeight: parseFloat(formData.get('gross-weight') as string),
-      tareWeight: parseFloat(formData.get('tare-weight') as string),
-      netWeight: parseFloat(formData.get('net-weight') as string),
-      notes: formData.get('notes') as string,
+    if (!formData.customerId) {
+      setError('Please select a customer')
+      setLoading(false)
+      return
+    }
+
+    const gross = parseFloat(formData.grossWeight)
+    const tare = parseFloat(formData.tareWeight)
+    const net = parseFloat(formData.netWeight)
+
+    if (isNaN(gross) || isNaN(tare) || isNaN(net)) {
+      setError('Invalid weight values')
+      setLoading(false)
+      return
     }
 
     try {
-      await createWeightTicket(data)
+      const response = await fetch('/api/weight-tickets', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ticketNumber: `WT-${Date.now()}`,
+          customerId: formData.customerId,
+          date: new Date(),
+          truckNumber: formData.truckNumber,
+          driverName: formData.driverName,
+          grossWeight: gross,
+          tareWeight: tare,
+          netWeight: net,
+          notes: formData.notes,
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to create weight ticket')
+      }
+
       router.push('/weight-tickets')
       router.refresh()
     } catch (err) {
+      console.error('Create ticket error:', err)
       setError(err instanceof Error ? err.message : 'Failed to create weight ticket')
     } finally {
       setLoading(false)
@@ -82,7 +137,9 @@ export default function NewWeightTicketPage() {
             <div>
               <h2 className="text-base font-semibold text-gray-900">Customer Information</h2>
               <div className="mt-4">
-                <CustomerSelect />
+                <CustomerSelectClient 
+                  onChange={(customerId) => updateFormData('customerId', customerId)} 
+                />
               </div>
             </div>
 
@@ -91,76 +148,62 @@ export default function NewWeightTicketPage() {
               <h2 className="text-base font-semibold text-gray-900">Truck Information</h2>
               <div className="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-2">
                 <div>
-                  <label htmlFor="truck-number" className="block text-sm font-medium text-gray-700">
-                    Truck Number
-                  </label>
+                  <Label htmlFor="truck-number">Truck Number</Label>
                   <Input
                     type="text"
-                    name="truck-number"
                     id="truck-number"
+                    value={formData.truckNumber}
+                    onChange={(e) => updateFormData('truckNumber', e.target.value)}
                     required
-                    className="mt-1 block w-full"
                   />
                 </div>
                 <div>
-                  <label htmlFor="driver-name" className="block text-sm font-medium text-gray-700">
-                    Driver Name
-                  </label>
+                  <Label htmlFor="driver-name">Driver Name</Label>
                   <Input
                     type="text"
-                    name="driver-name"
                     id="driver-name"
+                    value={formData.driverName}
+                    onChange={(e) => updateFormData('driverName', e.target.value)}
                     required
-                    className="mt-1 block w-full"
                   />
                 </div>
               </div>
             </div>
 
-            {/* Weight Measurements */}
+            {/* Weight Display */}
             <div>
               <h2 className="text-base font-semibold text-gray-900">Weight Measurements</h2>
               <div className="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-3">
                 <div>
-                  <label htmlFor="gross-weight" className="block text-sm font-medium text-gray-700">
-                    Gross Weight (kg)
-                  </label>
+                  <Label htmlFor="gross-weight">Gross Weight (kg)</Label>
                   <Input
                     type="number"
-                    name="gross-weight"
                     id="gross-weight"
+                    value={formData.grossWeight}
+                    onChange={(e) => updateFormData('grossWeight', e.target.value)}
                     required
-                    value={grossWeight}
-                    onChange={(e) => setGrossWeight(parseFloat(e.target.value) || 0)}
-                    className="mt-1 block w-full"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="tare-weight" className="block text-sm font-medium text-gray-700">
-                    Tare Weight (kg)
-                  </label>
-                  <Input
-                    type="number"
-                    name="tare-weight"
-                    id="tare-weight"
-                    required
-                    value={tareWeight}
-                    onChange={(e) => setTareWeight(parseFloat(e.target.value) || 0)}
-                    className="mt-1 block w-full"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="net-weight" className="block text-sm font-medium text-gray-700">
-                    Net Weight (kg)
-                  </label>
-                  <Input
-                    type="number"
-                    name="net-weight"
-                    id="net-weight"
-                    required
-                    value={netWeight}
                     readOnly
-                    className="mt-1 block w-full bg-gray-50"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="tare-weight">Tare Weight (kg)</Label>
+                  <Input
+                    type="number"
+                    id="tare-weight"
+                    value={formData.tareWeight}
+                    onChange={(e) => updateFormData('tareWeight', e.target.value)}
+                    required
+                    readOnly
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="net-weight">Net Weight (kg)</Label>
+                  <Input
+                    type="number"
+                    id="net-weight"
+                    value={formData.netWeight}
+                    readOnly
+                    className="bg-gray-50"
                   />
                 </div>
               </div>
@@ -168,29 +211,22 @@ export default function NewWeightTicketPage() {
 
             {/* Notes */}
             <div>
-              <h2 className="text-base font-semibold text-gray-900">Additional Information</h2>
-              <div className="mt-4">
-                <label htmlFor="notes" className="block text-sm font-medium text-gray-700">
-                  Notes
-                </label>
-                <Textarea
-                  name="notes"
-                  id="notes"
-                  rows={3}
-                  className="mt-1 block w-full"
-                  placeholder="Add any additional information about this weight ticket"
-                />
-              </div>
+              <Label htmlFor="notes">Notes</Label>
+              <Textarea
+                id="notes"
+                value={formData.notes}
+                onChange={(e) => updateFormData('notes', e.target.value)}
+                rows={3}
+                placeholder="Add any additional information"
+              />
             </div>
 
-            {/* Error message */}
             {error && (
               <div className="rounded-md bg-red-50 p-4">
                 <div className="text-sm text-red-700">{error}</div>
               </div>
             )}
 
-            {/* Form Actions */}
             <div className="flex justify-end gap-x-4">
               <Link
                 href="/weight-tickets"
@@ -209,28 +245,23 @@ export default function NewWeightTicketPage() {
           </form>
         </Card>
 
+        {/* Weight Capture Component */}
         <div className="space-y-6">
-          <WeighingScale
-            onWeightChange={handleWeightChange}
-            onWeightStabilize={handleWeightStabilize}
+          <WeightSourceSelector
+            onGrossWeightCapture={handleGrossWeightCapture}
+            onTareWeightCapture={handleTareWeightCapture}
+            onNetWeightUpdate={handleNetWeightUpdate}
           />
-          
           <Card className="p-6">
-            <h3 className="text-lg font-medium mb-4">Weight Summary</h3>
-            <div className="space-y-4">
-              <div>
-                <label className="text-sm font-medium text-gray-700">Gross Weight</label>
-                <div className="mt-1 text-2xl font-semibold">{grossWeight.toFixed(2)} kg</div>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-700">Tare Weight</label>
-                <div className="mt-1 text-2xl font-semibold">{tareWeight.toFixed(2)} kg</div>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-700">Net Weight</label>
-                <div className="mt-1 text-2xl font-semibold text-indigo-600">{netWeight.toFixed(2)} kg</div>
-              </div>
-            </div>
+            <h3 className="text-lg font-medium mb-4">Weight Capture Instructions</h3>
+            <ol className="list-decimal list-inside space-y-2 text-sm text-gray-600">
+              <li>Ensure a scale is connected or select manual entry</li>
+              <li>Click "Start Gross Weight" to begin capturing</li>
+              <li>Wait for stable reading or enter weight manually</li>
+              <li>Click capture button to record gross weight</li>
+              <li>Remove the load and repeat process for tare weight</li>
+              <li>Net weight will be calculated automatically</li>
+            </ol>
           </Card>
         </div>
       </div>

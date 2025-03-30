@@ -96,6 +96,7 @@ const Features = () => {
                         alt={feature.alt}
                         fill
                         className="object-cover"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         />
                     </div>
                     <h3 className="text-xl font-semibold text-gray-100">{feature.title}</h3>
