@@ -1,19 +1,33 @@
 "use client"
 import { Card } from '@/components/ui/card'
-import { PlusIcon } from '@heroicons/react/24/outline'
+import { PlusIcon, TrashIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link'
-import { getDevices } from '@/actions/thingsboard'
+import { getDevices, deleteDeviceSetting } from '@/actions/thingsboard'
 import { SettingModal } from '@/components/ui/custom/SettingModal'
 import { useEffect, useState } from 'react'
 import { CardSkeleton } from '@/components/ui/custom/CardSkeleton'
 import type { Device } from '@/types/device'
 import { useThingsboardSocket } from '@/hooks/useThingsboardSocket'
 import { useScaleSocket } from '@/hooks/useScaleSocket'
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
+import { Button } from '@/components/ui/button'
+import { toast } from '@/components/ui/use-toast'
 
 export default function DevicesPage() {
   const [devicesList, setDevicesList] = useState<Device[]>([])  
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [deviceToDelete, setDeviceToDelete] = useState<string | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   const tbData = useThingsboardSocket();
   const scaleData = useScaleSocket();
@@ -22,7 +36,7 @@ export default function DevicesPage() {
     async function loadDevices() {
       try {
         const devices = await getDevices()
-        setDevicesList(devices)
+        setDevicesList(devices || [])
       } catch (err) {
         console.error('Failed to load devices:', err)
         setError('Failed to load devices')
@@ -32,6 +46,41 @@ export default function DevicesPage() {
     }
     loadDevices()
   }, [])
+
+  const handleDeleteDevice = async () => {
+    if (!deviceToDelete) return;
+    
+    setIsDeleting(true);
+    try {
+      const result = await deleteDeviceSetting(deviceToDelete);
+      
+      if (result.success) {
+        setDevicesList(prevDevices => 
+          prevDevices.filter(device => device.id !== deviceToDelete)
+        );
+        toast({
+          title: "Device deleted",
+          description: "The device has been successfully deleted.",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: result.error?.message || "Failed to delete device",
+          variant: "destructive",
+        });
+      }
+    } catch (err) {
+      console.error('Failed to delete device:', err);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred while deleting the device.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDeleting(false);
+      setDeviceToDelete(null);
+    }
+  };
 
   if (loading) return <CardSkeleton />
 
@@ -67,6 +116,14 @@ export default function DevicesPage() {
                 >
                   View Details
                 </Link>
+                <Button 
+                  variant="destructive" 
+                  size="sm"
+                  onClick={() => setDeviceToDelete(device.id)}
+                >
+                  <TrashIcon className="h-4 w-4 mr-1" />
+                  Delete
+                </Button>
               </div>
             </div>
 
@@ -128,6 +185,28 @@ export default function DevicesPage() {
           No devices found. Add a new device to get started.
         </Card>
       )}
+
+      <AlertDialog open={!!deviceToDelete} onOpenChange={(open) => !open && setDeviceToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure you want to delete this device?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the device
+              and remove all associated data from our servers.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDeleteDevice} 
+              disabled={isDeleting}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {isDeleting ? 'Deleting...' : 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

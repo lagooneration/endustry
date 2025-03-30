@@ -105,7 +105,7 @@ export function WeightSourceSelector({
         ) : hasActiveConnection && (
           <div className="text-center py-6">
             <div className="text-4xl font-bold text-indigo-600">
-              {currentWeight.toFixed(2)} kg
+              {currentWeight} kg
             </div>
             <div className={`mt-2 text-sm ${isStable ? 'text-green-600' : 'text-orange-500'}`}>
               {isStable ? '✓ Stable Reading' : '⟳ Stabilizing...'}

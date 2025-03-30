@@ -278,3 +278,44 @@ export async function createSetting(data: {
       throw error;
     }
   }
+
+  export async function deleteDeviceSetting(deviceId: string) {
+    try {
+      const session = await auth();
+      if (!session?.user?.id) throw new Error("Unauthorized");
+  
+      // First find the device to get ThingsBoard entityId
+      const device = await prisma.device.findUnique({
+        where: {
+          id: deviceId,
+          userId: session.user.id
+        }
+      });
+  
+      if (!device) {
+        throw new Error("Device not found");
+      }
+  
+      // Delete the device from Prisma
+      await prisma.device.delete({
+        where: {
+          id: deviceId,
+          userId: session.user.id
+        }
+      });
+  
+      // Also delete any associated device settings
+      await prisma.deviceSetting.deleteMany({
+        where: {
+          entityId: device.entityId,
+          userId: session.user.id
+        }
+      });
+  
+      revalidatePath("/devices");
+      return { success: true };
+    } catch (error) {
+      console.error('Error deleting device:', error);
+      return { error: error instanceof Error ? error : new Error('Unknown error') };
+    }
+  }

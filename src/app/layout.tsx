@@ -6,6 +6,7 @@ import { auth } from "@/lib/auth";
 
 const inter = Inter({ subsets: ["latin"] });
 import { Poppins } from "next/font/google";
+import { Toaster } from "@/components/ui/toaster";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -29,6 +30,7 @@ export default async function RootLayout({
       <html lang="en">
         <body className={`${inter.className} ${poppins.variable}`}>
           {children}
+          <Toaster />
         </body>
       </html>
     </SessionProvider>
